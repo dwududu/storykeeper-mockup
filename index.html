@@ -373,6 +373,10 @@ function scrNotebook() {
       <span class="meta">${a.stories?`${a.stories} ${a.stories===1?'story':'stories'}`:'nothing yet'} ›</span></div>
       <div class="bar"><i style="width:${a.depth*33}%;background:${a.depth===0?'#E4DAC7':a.depth===1?'#C0A15E':'var(--deep)'}"></i></div>
     </div>`).join("")}
+    <h3 class="sect">your stories</h3>
+    ${D.stories.filter(s=>s.mine).map(s => `<div class="card tap" style="padding:11px 14px" onclick="go('story','${s.id}')">
+      <div class="row"><span class="name" style="font-size:13.5px">${s.title}</span><span class="meta">${s.year} ›</span></div>
+      <p class="note" style="margin-top:4px">${s.time}${s.calls>1?` · ${s.calls} nights`:""}${s.photos?` · ${s.photos} photos`:""}</p></div>`).join("")}
     <h3 class="sect">photos waiting for a story</h3>
     <div class="photos">${D.shelf.map(p => `<div class="ph" style="width:82px;height:82px">${p.label}</div>`).join("")}
       <div class="ph add" style="width:82px;height:82px" onclick="openSheet('photo')">+</div></div>
