@@ -3,128 +3,133 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Storykeeper — interactive spec</title>
+<title>Storykeeper — interactive spec v2</title>
 <style>
   :root{
     --ink:#26201B; --body:#4a423c; --muted:#8E8E93; --line:#EAE2D7; --paper:#FBF8F4;
     --card:#FFFFFF; --accent:#E4623C; --accent-soft:#FBEAE2; --green:#1F6F63; --green-soft:#DCEEE9;
-    --violet:#5B4B9E; --violet-soft:#EDEAF7; --desk:#EFEAE2; --radius:14px;
+    --violet:#5B4B9E; --violet-soft:#EDEAF7; --gold:#9A7B1F; --gold-soft:#F6EFD9;
+    --desk:#EFEAE2; --radius:14px;
   }
   *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
   body{margin:0;background:var(--desk);color:var(--body);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  .shell{display:flex;gap:34px;padding:34px 34px 60px;align-items:flex-start;max-width:1220px;margin:0 auto}
-  /* ---------- notes column ---------- */
-  .notes{flex:1 1 auto;min-width:300px;max-width:430px;position:sticky;top:34px}
+  .shell{display:flex;gap:34px;padding:34px 34px 60px;align-items:flex-start;max-width:1260px;margin:0 auto}
+  .notes{flex:1 1 auto;min-width:300px;max-width:440px;position:sticky;top:34px}
   .notes h1{font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:#9a8f83;margin:0 0 6px;font-weight:800}
-  .notes .lede{font-size:14.5px;line-height:1.55;color:#5c534b;margin:0 0 18px}
-  .role{display:flex;gap:8px;margin:0 0 20px}
+  .notes .lede{font-size:14.5px;line-height:1.55;color:#5c534b;margin:0 0 16px}
+  .role{display:flex;gap:8px;margin:0 0 18px}
   .role button{flex:1;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 10px;
     font:inherit;font-size:12.5px;font-weight:700;color:#5c534b;cursor:pointer}
   .role button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .screens{display:flex;flex-direction:column;gap:2px}
-  .screens button{text-align:left;border:0;background:transparent;padding:9px 10px;border-radius:9px;
+  .screens{display:flex;flex-direction:column;gap:1px}
+  .screens button{text-align:left;border:0;background:transparent;padding:8px 10px;border-radius:9px;
     font:inherit;font-size:13px;color:#5c534b;cursor:pointer;display:flex;justify-content:space-between;gap:12px}
   .screens button:hover{background:#F7F1E8}
   .screens button.on{background:#fff;box-shadow:0 1px 0 var(--line),0 6px 16px rgba(70,50,30,.06);color:var(--ink);font-weight:700}
   .screens small{color:#a89e92;font-size:11px;font-weight:600}
-  .sep{height:1px;background:var(--line);margin:10px 8px}
   .what{font-size:13px;line-height:1.6;color:#5c534b;background:#fff;border:1px solid var(--line);
-    border-radius:12px;padding:13px 14px;margin-top:16px}
-  .what b{color:var(--ink)}
-  .what p{margin:0 0 8px}
-  .what p:last-child{margin:0}
-  /* ---------- phone ---------- */
+    border-radius:12px;padding:13px 14px;margin-top:14px}
+  .what b{color:var(--ink)} .what p{margin:0 0 8px} .what p:last-child{margin:0}
   .stage{flex:0 0 auto}
   .phone{position:relative;width:390px;height:844px;background:var(--paper);border:11px solid #1a1a1a;
-    border-radius:52px;overflow:hidden;box-shadow:0 26px 60px rgba(40,28,18,.22),0 2px 0 #2a2a2a inset}
+    border-radius:52px;overflow:hidden;box-shadow:0 26px 60px rgba(40,28,18,.22)}
   .statusbar{height:42px;display:flex;align-items:center;justify-content:space-between;
     padding:0 26px;font-size:12.5px;font-weight:700;color:var(--ink);position:relative;z-index:4}
   .statusbar .icons{display:flex;align-items:center;gap:5px}
-  .statusbar svg{display:block}
   #view{position:absolute;inset:42px 0 0;display:flex;flex-direction:column;overflow:hidden}
   .screen{display:flex;flex-direction:column;flex:1;overflow:hidden}
   .scroll{overflow-y:auto;flex:1;padding:0 20px 26px;scrollbar-width:none}
   .scroll::-webkit-scrollbar{display:none}
-  .appbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 8px;flex:0 0 auto}
-  .appbar .eyebrow{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9a8f83;font-weight:800}
+  .appbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 8px;flex:0 0 auto;gap:10px}
+  .eyebrow{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9a8f83;font-weight:800}
   .back{border:0;background:transparent;padding:0;font:inherit;font-size:13px;color:var(--accent);font-weight:700;cursor:pointer}
   h2.title{font-size:24px;line-height:1.2;letter-spacing:-.015em;margin:6px 0 6px;color:var(--ink);font-weight:800}
-  h3.sect{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9a8f83;margin:22px 0 9px;font-weight:800}
+  h3.sect{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:#9a8f83;margin:20px 0 9px;font-weight:800}
   p.sub{font-size:13.5px;line-height:1.55;color:#5c534b;margin:0 0 14px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;
-    margin-bottom:10px;box-shadow:0 2px 10px rgba(60,42,30,.045)}
-  .card.tap{cursor:pointer}
-  .card.tap:hover{border-color:#ddd0bd}
+    margin-bottom:9px;box-shadow:0 2px 10px rgba(60,42,30,.045)}
+  .card.tap{cursor:pointer}.card.tap:hover{border-color:#ddd0bd}
   .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
   .name{font-weight:700;font-size:14.5px;color:var(--ink)}
   .meta{font-size:12px;color:var(--muted)}
   .pill{display:inline-block;background:#F5EFE7;color:#5c534b;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:700}
-  .tag{font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;margin-right:4px;letter-spacing:.02em}
+  .tag{font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px;margin:0 4px 4px 0;display:inline-block}
   .tag.green{color:var(--green);background:var(--green-soft)}
   .tag.orange{color:#B4532E;background:var(--accent-soft)}
   .tag.violet{color:var(--violet);background:var(--violet-soft)}
+  .tag.gold{color:var(--gold);background:var(--gold-soft)}
   .quote{font-size:14.5px;line-height:1.62;color:var(--ink);margin:6px 0 0}
-  .quote.big{font-size:15.5px}
+  .quote.big{font-size:16px}
   .asked{font-size:12.5px;color:#9a8f83;font-style:italic;line-height:1.5;margin:10px 0 0}
   .note{font-size:11.5px;line-height:1.55;color:#9a8f83}
   .btn{display:block;width:100%;text-align:center;border:0;border-radius:12px;padding:13px;font:inherit;
     font-size:14.5px;font-weight:700;background:var(--accent);color:#fff;cursor:pointer;margin-top:8px}
   .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
-  .btn.dark{background:var(--ink)}
-  .btnrow{display:flex;gap:8px;margin-top:8px}
-  .btnrow .btn{margin-top:0}
-  .photos{display:flex;gap:8px;margin:14px 0 0}
+  .btn.small{padding:9px;font-size:13px}
+  .btnrow{display:flex;gap:8px;margin-top:8px}.btnrow .btn{margin-top:0}
+  .photos{display:flex;gap:8px;margin:14px 0 0;overflow:hidden}
   .ph{width:76px;height:76px;border-radius:11px;border:1px solid var(--line);flex:0 0 auto;
     background:repeating-linear-gradient(45deg,#F1EAE0,#F1EAE0 7px,#F7F2EA 7px,#F7F2EA 14px);
-    display:flex;align-items:center;justify-content:center;font-size:8.5px;letter-spacing:.1em;
-    text-transform:uppercase;color:#bcb2a4}
-  .ph.big{width:100%;height:210px;border-radius:14px;font-size:10px}
+    display:flex;align-items:center;justify-content:center;font-size:8px;letter-spacing:.1em;
+    text-transform:uppercase;color:#bcb2a4;text-align:center}
+  .ph.big{width:100%;height:230px;border-radius:14px;font-size:10px}
   .ph.add{background:#FCFAF6;border-style:dashed;color:#c3b8a9;font-size:20px}
-  .tabs{display:flex;gap:6px;margin:2px 0 12px}
-  .tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font:inherit;
-    font-size:11.5px;font-weight:700;color:#7a7168;cursor:pointer}
-  .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+    border-radius:11px;padding:10px 12px;margin:4px 0 10px;color:#b0a598;font-size:13.5px}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 11px;font:inherit;
+    font-size:11.5px;font-weight:700;color:#7a7168;cursor:pointer;white-space:nowrap}
+  .chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .meta-strip{display:flex;flex-wrap:wrap;gap:6px 14px;margin:12px 0 0;padding:11px 12px;
+    border:1px solid var(--line);border-radius:11px;background:#FFFDFA}
+  .meta-strip div{font-size:11.5px;color:#7a7168}
+  .meta-strip b{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#b0a598;font-weight:800;margin-bottom:2px}
+  .tl{position:relative;padding-left:16px}
+  .tl:before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line)}
+  .tl-year{font-size:11px;font-weight:800;color:#b0a598;letter-spacing:.08em;margin:14px 0 6px}
   .tabbar{flex:0 0 auto;display:flex;justify-content:space-around;padding:9px 8px calc(9px + env(safe-area-inset-bottom));
-    border-top:1px solid var(--line);background:rgba(251,248,244,.96);backdrop-filter:blur(8px)}
+    border-top:1px solid var(--line);background:rgba(251,248,244,.96)}
   .tabbar button{border:0;background:transparent;font:inherit;font-size:10px;font-weight:800;letter-spacing:.04em;
     color:#a89e92;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:2px 8px}
   .tabbar button.on{color:var(--accent)}
   .dot{width:6px;height:6px;border-radius:50%;background:currentColor;display:block}
-  .ring{width:52px;height:52px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;
-    justify-content:center;color:var(--accent);font-size:18px}
-  .micwrap{display:flex;flex-direction:column;align-items:center;padding:26px 0 0}
-  .orb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#F08A66,#E4623C 62%,#C94E2C);
-    box-shadow:0 18px 40px rgba(228,98,60,.32)}
-  .state{font-size:12.5px;color:#9a8f83;margin-top:16px;letter-spacing:.02em}
-  .count{font-size:12px;color:#b0a598;margin-top:4px}
+  .talkbar{flex:0 0 auto;padding:10px 16px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+    background:rgba(251,248,244,.98)}
+  .statebtn{display:flex;align-items:center;gap:12px;width:100%;border:1px solid var(--line);background:#fff;
+    border-radius:14px;padding:13px 15px;font:inherit;cursor:pointer}
+  .statebtn .led{width:10px;height:10px;border-radius:50%;background:var(--accent);flex:0 0 auto;
+    box-shadow:0 0 0 4px rgba(228,98,60,.16)}
+  .statebtn.listen .led{background:var(--green);box-shadow:0 0 0 4px rgba(31,111,99,.14)}
+  .statebtn .txt{font-size:14.5px;font-weight:700;color:var(--ink);text-align:left;flex:1}
+  .statebtn .hint{font-size:11px;color:#9a8f83;font-weight:600}
+  .caption{font-size:15px;line-height:1.55;color:#8b8178;padding:0 2px 6px;min-height:52px}
   .sheet{position:absolute;inset:0;background:rgba(38,32,27,.32);display:none;align-items:flex-end;z-index:6}
   .sheet.on{display:flex}
-  .sheet .inner{background:var(--paper);border-radius:22px 22px 0 0;padding:18px 20px 26px;width:100%}
+  .sheet .inner{background:var(--paper);border-radius:22px 22px 0 0;padding:18px 20px 26px;width:100%;max-height:82%;overflow:auto}
   .grab{width:38px;height:4px;border-radius:2px;background:#e0d6c8;margin:0 auto 14px}
-  .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:0 0 12px;background:#fff}
-  .seg button{flex:1;border:0;background:transparent;padding:10px 6px;font:inherit;font-size:12.5px;
+  .seg{display:flex;border:1px solid var(--line);border-radius:11px;overflow:hidden;margin:0 0 10px;background:#fff}
+  .seg button{flex:1;border:0;background:transparent;padding:10px 6px;font:inherit;font-size:12px;
     font-weight:700;color:#7a7168;cursor:pointer}
   .seg button.on{background:var(--accent-soft);color:#B4532E}
   .bar{height:6px;border-radius:3px;background:#EFE7DA;overflow:hidden;margin-top:7px}
   .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
   .who{display:flex;align-items:center;gap:9px}
   .av{width:30px;height:30px;border-radius:50%;background:var(--accent-soft);color:#B4532E;font-weight:800;
-    font-size:12px;display:flex;align-items:center;justify-content:center}
+    font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
   .av.v{background:var(--violet-soft);color:var(--violet)}
-  .toggle{width:40px;height:24px;border-radius:12px;background:#E6DDD0;position:relative;flex:0 0 auto;cursor:pointer}
-  .toggle i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;
-    box-shadow:0 1px 3px rgba(0,0,0,.2);transition:.15s}
-  .toggle.on{background:var(--green)}
-  .toggle.on i{left:19px}
-  @media (max-width:1080px){.shell{flex-direction:column;align-items:center}.notes{position:static;max-width:520px}}
+  .bubble{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:14px;line-height:1.55;color:var(--ink)}
+  .bubble.her{background:var(--violet-soft);border-color:#DCD6F0;color:#3d3369}
+  .field{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;min-height:64px;color:#bcb2a4;font-size:14px}
+  @media (max-width:1100px){.shell{flex-direction:column;align-items:center}.notes{position:static;max-width:520px}}
 </style>
 </head>
 <body>
 <div class="shell">
   <aside class="notes">
-    <h1>Storykeeper · interactive spec</h1>
-    <p class="lede">One app, two views. David records; his family reads only what concerns them and adds their own account beside it. Press a screen, or tap the phone as you would the real thing.</p>
+    <h1>Storykeeper · spec v2</h1>
+    <p class="lede">Two views of one app. The storyteller records; the family read only what concerns them and add their own account beside it. Everything here is clickable, including the sheets.</p>
     <div class="role">
       <button id="rDavid" class="on" onclick="setRole('david')">As David</button>
       <button id="rSusan" onclick="setRole('susan')">As Susan</button>
@@ -153,106 +158,99 @@
 /* ------------------------------------------------------------------ data */
 const D = {
   name: "David Wu",
-  bios: [
-    { id: "fire", theme: "the fire", time: "4:12 – 6:03", asked: "What do you remember about the night the shop burned?",
-      said: "I was upstairs. I could smell it before I could see it. We lost the back room and everything in it.",
-      photos: 2, perspectives: 2, open: true },
-    { id: "bike", theme: "first work", time: "8:47 – 9:13", asked: "Tell me about the day you got the bike.",
-      said: "I was twenty two and working at a print shop. I had saved for a year. It was a Kawasaki Ninja, green. I rode it home along the highway with the sun going down behind me.",
-      photos: 3, perspectives: 0, open: true },
-    { id: "tram", theme: "childhood home", time: "6:34 – 7:20", asked: "What did you hear at night where you grew up?",
-      said: "You could hear the tram all night. I didn't mind it. I still can't sleep in a quiet room.",
-      photos: 1, perspectives: 1, open: false },
-    { id: "shop", theme: "the shop", time: "9:40 – 12:02", asked: "Who worked there with your father?",
-      said: "My mother did the books, and my brother would come after school and sweep up. He hated it more than I did.",
-      photos: 0, perspectives: 1, open: false }
+  stories: [
+    { id:"fire", title:"The night the shop burned", year:1962, place:"Sham Shui Po", theme:"the shop",
+      time:"4:12 – 6:03", asked:"What do you remember about the night the shop burned?",
+      said:"I was upstairs. I could smell it before I could see it. We lost the back room and everything in it.",
+      photos:2, family:2, people:["my father","my mother"] },
+    { id:"bike", title:"The green motorbike", year:1980, place:"Nathan Road", theme:"first work",
+      time:"8:47 – 9:13", asked:"Tell me about the day you got the bike.",
+      said:"I was twenty two and working at a print shop. I had saved for a year. It was a Kawasaki Ninja, green. I rode it home along the highway with the sun going down behind me.",
+      photos:3, family:0, people:["Ah Kin"] },
+    { id:"tram", title:"The tram at night", year:1958, place:"Wan Chai", theme:"childhood home",
+      time:"6:34 – 7:20", asked:"What did you hear at night where you grew up?",
+      said:"You could hear the tram all night. I didn't mind it. I still can't sleep in a quiet room.",
+      photos:1, family:1, people:["my mother"] },
+    { id:"shop", title:"Working for my father", year:1961, place:"Sham Shui Po", theme:"the shop",
+      time:"9:40 – 12:02", asked:"Who worked there with your father?",
+      said:"My mother did the books, and my brother would come after school and sweep up. He hated it more than I did.",
+      photos:0, family:1, people:["my father","my brother","my mother"] }
   ],
   notebook: {
     ask: "What happened to Ah Kin after he worked for your father?",
+    why: "Ah Kin is named twice and never followed. The thread was left open on the second call.",
     threads: ["the pretend cops and robbers in the street", "sneaking out to ride the bike", "the first day at the print shop"],
-    themes: [["childhood home", 3, 100], ["first work", 2, 66], ["the shop", 2, 66], ["the fire", 1, 33], ["play", 1, 33]],
-    people: ["Ah Kin", "my father", "my mother", "my brother"]
+    themes: [["childhood home",3,100],["first work",2,66],["the shop",2,66],["the fire",1,33],["play",1,33]],
+    people: ["Ah Kin","my father","my mother","my brother"],
+    thin: ["school","the years abroad","his own children"]
   },
   perspectives: {
     fire: [
-      { who: "Susan", rel: "his daughter", kind: "account",
-        text: "I was nine. I remember being carried down the stairs and the smell, and being told the shop was fine when it wasn't." },
-      { who: "Peter", rel: "his son", kind: "correction",
-        text: "It was 1972, not 1971. I have the insurance letter." }
+      { who:"Susan", rel:"his daughter", kind:"account",
+        text:"I was nine. I remember being carried down the stairs and the smell, and being told the shop was fine when it wasn't." },
+      { who:"Peter", rel:"his son", kind:"correction",
+        text:"It was 1972, not 1971. I have the insurance letter." }
     ],
-    tram: [
-      { who: "Susan", rel: "his daughter", kind: "account",
-        text: "He told me this when I was small and I have never forgotten it. Now I know why I need a fan on to sleep." }
-    ],
-    shop: [
-      { who: "Peter", rel: "his son", kind: "account",
-        text: "Grandad let me sit on the counter and ring the till when I was six. He always pretended it was a real sale." }
-    ]
+    tram: [ { who:"Susan", rel:"his daughter", kind:"account",
+        text:"He told me this when I was small and I have never forgotten it. Now I know why I need a fan on to sleep." } ],
+    shop: [ { who:"Peter", rel:"his son", kind:"account",
+        text:"Grandad let me sit on the counter and ring the till when I was six. He always pretended it was a real sale." } ]
   },
-  brief: { style: "prober", pace: "normal", speed: "normal", avoid: "my brother's death", address: "Dave" }
+  settings: { style:"prober", speed:"normal", avoid:"my brother's death", address:"Dave", patience:2.5 }
 };
 
 const SCREENS = {
   david: [
-    { id: "talk",   label: "Talk",        sub: "opening" },
-    { id: "session",label: "In a session",sub: "photo cue" },
-    { id: "notebook",label:"Notebook",    sub: "coverage" },
-    { id: "archive",label: "Archive",     sub: "passages" },
-    { id: "passage",label: "A passage",   sub: "photos + voices" },
-    { id: "review", label: "Review",      sub: "her next question" },
-    { id: "settings",label:"Brief",       sub: "who she is for him" },
-    { id: "sharing",label: "Sharing",     sub: "who may read" }
+    { id:"talk",     label:"Call",            sub:"she speaks first" },
+    { id:"session",  label:"In a session",    sub:"photo cue" },
+    { id:"notebook", label:"Notebook",        sub:"what is thin" },
+    { id:"archive",  label:"Archive",         sub:"stories, search" },
+    { id:"story",    label:"A story",         sub:"words, photos, family" },
+    { id:"photos",   label:"Add photos",      sub:"three ways in" },
+    { id:"settings", label:"Settings",        sub:"brief, sharing" }
   ],
   susan: [
-    { id: "contrib", label: "Stories about you", sub: "where you appear" },
-    { id: "cfire",   label: "The fire",          sub: "his words + hers" },
-    { id: "add",     label: "Add an account",    sub: "one field" },
-    { id: "invite",  label: "The invitation",    sub: "before joining" }
+    { id:"contrib",  label:"Stories about you", sub:"where you appear" },
+    { id:"cstory",   label:"One memory",        sub:"his words" },
+    { id:"contribute", label:"Contribute",      sub:"in your own words" },
+    { id:"invite",   label:"The invitation",    sub:"before joining" }
   ]
 };
 
 const WHAT = {
-  talk: "<b>What this is.</b><p>She opens by saying where they stopped, in his own words, then offers a choice: carry on, or something new. She never asks him to remember on her behalf.</p>",
-  session: "<b>What this is.</b><p>A photograph is a way in, not an album. One picture, one question, nothing to navigate while talking.</p>",
-  notebook: "<b>What this is.</b><p>Coverage, not a diary: which parts of a life are thin, what she will ask next, and who has been named. This is the screen that makes the sessions feel purposeful.</p>",
-  archive: "<b>What this is.</b><p>His passages. Every one is verifiable against the transcript, and carries the question that produced it.</p>",
-  passage: "<b>What this is.</b><p>His words first and largest. Photographs belong to the story. Then other people's accounts, attributed, never merged and never quoted as him.</p>",
-  review: "<b>What this is.</b><p>One question a week, hers, waiting for his approval or correction. This is the steering layer: she authors, he decides.</p>",
-  settings: "<b>What this is.</b><p>The brief: how much she probes, how fast she speaks, what is off limits. Set once in conversation, editable here.</p>",
-  sharing: "<b>What this is.</b><p>Two switches, both his. Nobody sees anything by accident, and a contributor sees only the memories where they are named.</p>",
-  contrib: "<b>What this is.</b><p>Susan sees the four memories where she appears, with the sentence that names her, so the reason it is here is obvious.</p>",
-  cfire: "<b>What this is.</b><p>The same passage, seen from her side. She can read and listen. She cannot change his words.</p>",
-  add: "<b>What this is.</b><p>One field, or speak it. Then a preview of exactly how it will appear, because attribution is easier to trust when you have seen it first.</p>",
-  invite: "<b>What this is.</b><p>What she will and will not be able to do, before she accepts. The exit sits on the same screen as the entrance.</p>"
+  talk: "<b>No buttons.</b><p>She speaks; the screen is a caption, not a menu. The choice to continue or start something new is answered by talking, and she accepts either. A press here would turn a conversation into a form.</p>",
+  session: "<b>One control.</b><p>The bottom button is the state, not a command: it says who has the floor and lets you take it. No orb, because an orb is decoration that earns nothing. Leaving is the only way to end, and leaving files the call.</p>",
+  notebook: "<b>For the keeper, not the storyteller.</b><p>This is the desk: what is thin, what is left open, what she intends to ask, and whether he approves it. The archive is the library. Different question, different reader.</p>",
+  archive: "<b>Organised by story, not by passage.</b><p>A passage is the unit of proof; a story is the unit of memory. Default order is the year it happened, with search and filters over people, years, photos and family contributions.</p>",
+  story: "<b>Evidence and metadata.</b><p>When it happened, where, who is named, which call it came from, how long it runs. Under the accounts, one action: ask someone to contribute, which is an invitation, not a text box.</p>",
+  photos: "<b>Three ways in.</b><p>A photo can start a story, sit with one, or be added to a person. Which of the three you choose decides what happens next, and the photo is never stored without one of them.</p>",
+  settings: "<b>One place.</b><p>The brief was a tab; it is now a section. Voice, patience, what she calls him, what is off limits, who may see, and the consent record underneath all of it.</p>",
+  contrib: "<b>Only where she is named.</b><p>Susan sees four memories, each with the sentence that names her, so the reason it is here is obvious.</p>",
+  cstory: "<b>His words, her ear.</b><p>She can read and listen. The one action is to contribute, which opens a conversation with the photo and his words already in it.</p>",
+  contribute: "<b>A conversation, not a form.</b><p>The prompt carries the context so she does not have to remember what she is answering. She can speak it; speaking is easier than typing for the people this is for.</p>",
+  invite: "<b>Terms before consent.</b><p>What she may do, what she may not, and that she can leave and take her words with her. The exit sits on the same screen as the entrance.</p>"
 };
 
 /* ------------------------------------------------------------------ state */
-let role = "david";
-let cur = "talk";
-let passage = "fire";
+let role = "david", cur = "talk", story = "fire", listening = true;
 
-const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
 const phone = () => document.getElementById("view");
+const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
 
 function go(id, arg) {
-  if (arg) passage = arg;
-  cur = id;
-  render();
-  const list = SCREENS[role];
-  if (!list.some(s => s.id === id)) { role = (id === "contrib" || id === "cfire" || id === "add" || id === "invite") ? "susan" : "david"; paintRole(); }
+  if (arg) story = arg;
+  cur = id; render();
 }
 
 function setRole(r, nav = true) {
-  role = r;
-  paintRole();
+  role = r; paintRole();
   if (nav) go(r === "david" ? "talk" : "contrib");
 }
 
 function paintRole() {
   document.getElementById("rDavid").classList.toggle("on", role === "david");
   document.getElementById("rSusan").classList.toggle("on", role === "susan");
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+  const list = document.getElementById("list"); list.innerHTML = "";
   SCREENS[role].forEach(s => {
     const b = el(`<button onclick="go('${s.id}')"><span>${s.label}</span><small>${s.sub}</small></button>`);
     if (s.id === cur) b.classList.add("on");
@@ -262,276 +260,296 @@ function paintRole() {
 
 function tabs(active) {
   const mine = role === "david"
-    ? [["talk","Talk"],["notebook","Notebook"],["archive","Archive"],["sharing","Sharing"]]
-    : [["contrib","About you"],["cfire","One memory"]];
+    ? [["talk","Call"],["notebook","Notebook"],["archive","Archive"],["settings","Settings"]]
+    : [["contrib","About you"],["cstory","One memory"]];
   return `<div class="tabbar">${mine.map(([id,label]) =>
     `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${label}</button>`).join("")}</div>`;
 }
 
-/* ------------------------------------------------------------------ screens */
+/* ------------------------------------------------------------------ phone screens */
 function scrTalk() {
-  return `<div class="scroll">
+  return `<div class="scroll" style="display:flex;flex-direction:column">
     <div class="appbar"><span class="eyebrow">Storykeeper</span><span class="pill">AI assistant · neutral voice</span></div>
-    <div style="padding:18px 20px 0">
-      <div class="orb" style="width:84px;height:84px;margin:8px 0 0"></div>
-      <h2 class="title" style="margin-top:22px">Hello, it is Mina.</h2>
-      <p class="sub" style="font-size:14.5px">When we stopped, you were saying, <span style="color:var(--ink)">I could hear the tram all night. I did not mind it.</span></p>
-      <p class="sub">Shall we carry on from there, or would you rather tell me something new today?</p>
-      <button class="btn" onclick="go('session')">Carry on: the tram at night</button>
-      <button class="btn ghost" onclick="go('session')">Something new today</button>
-      <p class="note" style="text-align:center;margin-top:14px">2 sessions filed · 7 passages · 61 minutes</p>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 4px 20px">
+      <p class="eyebrow" style="margin-bottom:10px">she is speaking</p>
+      <p class="quote big" style="font-size:17.5px;line-height:1.62">Hello, it is Mina. When we stopped, you were saying, I could hear the tram all night. I did not mind it.</p>
+      <p class="quote big" style="font-size:17.5px;line-height:1.62;margin-top:12px">Shall we carry on from there, or would you rather tell me something new today?</p>
+      <p class="note" style="margin-top:22px">2 sessions · 7 stories · 61 minutes · no words of yours have been changed</p>
     </div>
-  </div>${tabs('talk')}`;
+  </div>
+  <div class="talkbar">
+    <button class="statebtn ${listening?'listen':''}" onclick="toggle()">
+      <span class="led"></span><span class="txt">${listening?'Listening — your turn':'Mem speaking'}</span>
+      <span class="hint">${listening?'tap to interrupt':'tap to pause her'}</span>
+    </button>
+  </div>`;
 }
 
 function scrSession() {
   return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('talk')">‹ Leave</button><span class="eyebrow">in a session</span><span class="pill">listening</span></div>
-    <div style="padding:6px 20px 0">
-      <div class="ph big">photograph · the tram, 1962</div>
-      <p class="note" style="text-align:center;margin:9px 0 0">from the back of the picture, if it is right</p>
-      <p class="quote big" style="text-align:center;margin:22px 6px 0;font-size:17px">Who is this, and where was it taken?</p>
-      <div class="micwrap"><div class="orb"></div>
-        <span class="state">listening · she waits 2.2s, or longer if the sentence is unfinished</span>
-        <span class="count">3 passages kept this call</span></div>
-      <button class="btn ghost" style="margin-top:26px" onclick="go('archive')">End session</button>
-      <p class="note" style="text-align:center;margin-top:10px">The picture is a way in. Her words are what is kept.</p>
+    <div class="appbar"><button class="back" onclick="go('talk')">‹ Done</button><span class="eyebrow">in a session</span><span class="meta">12 min</span></div>
+    <div class="ph big">photograph · the tram at the terminus, 1958</div>
+    <p class="note" style="text-align:center;margin:9px 0 0">dated on the back of the print</p>
+    <p class="quote big" style="text-align:center;margin:20px 8px 0;font-size:17px">Who is this, and where was it taken?</p>
+    <div style="margin-top:26px">
+      <p class="eyebrow">what she has so far</p>
+      <p class="caption" style="margin-top:8px">“The day I was born, it was raining so hard the tram stopped at the corner. My mother always said that was the first thing I heard.”</p>
     </div>
+  </div>
+  <div class="talkbar">
+    <button class="statebtn ${listening?'listen':''}" onclick="toggle()">
+      <span class="led"></span><span class="txt">${listening?'Listening':'Mem speaking'}</span>
+      <span class="hint">${listening?'2 of 3 passages kept':'tap to interrupt'}</span>
+    </button>
   </div>`;
 }
 
 function scrNotebook() {
   const n = D.notebook;
   return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">notebook</span><span class="meta">2 sessions filed</span></div>
-    <h2 class="title">${D.name}'s life</h2>
-    <p class="sub">What is thin, what is next, and who has been named.</p>
+    <div class="appbar"><span class="eyebrow">notebook · for the keeper</span><span class="meta">2 sessions</span></div>
+    <h2 class="title">What is thin in his life</h2>
+    <p class="sub">Not a diary. The working view: where the record has holes and what she means to ask next.</p>
     <div class="card" style="border-left:3px solid var(--accent)">
-      <div class="row"><span class="eyebrow" style="color:#B4532E">ask this next</span><span class="tag orange">hers</span></div>
-      <p class="quote" style="margin-top:6px">${n.ask}</p>
-      <button class="btn ghost" style="margin-top:12px;padding:9px" onclick="go('review')">Review before she asks it</button>
+      <div class="row"><span class="eyebrow" style="color:#B4532E">her next question</span><span class="pill">waiting</span></div>
+      <p class="quote" style="margin-top:8px;font-size:15px">${n.ask}</p>
+      <p class="note" style="margin-top:8px">${n.why}</p>
+      <div class="btnrow"><button class="btn small" onclick="toast('She will ask this next call')">Use it</button>
+        <button class="btn ghost small" onclick="toast('Say the version you want her to ask')">Change a word</button></div>
     </div>
-    <h3 class="sect">coverage</h3>
+    <h3 class="sect">covered</h3>
     ${n.themes.map(([t,c,w]) => `<div class="card" style="padding:12px 14px">
-      <div class="row"><span class="name" style="font-size:13.5px">${t}</span><span class="meta">${c} ${c===1?'passage':'passages'}</span></div>
+      <div class="row"><span class="name" style="font-size:13.5px">${t}</span><span class="meta">${c} ${c===1?'story':'stories'}</span></div>
       <div class="bar"><i style="width:${w}%"></i></div></div>`).join("")}
+    <h3 class="sect">nothing yet</h3>
+    <div class="card" style="padding:12px 14px">${n.thin.map(t => `<span class="pill" style="margin:2px 4px 2px 0">${t}</span>`).join("")}</div>
     <h3 class="sect">left open</h3>
     ${n.threads.map(t => `<div class="card" style="padding:11px 14px"><span class="meta" style="color:#5c534b">${t}</span></div>`).join("")}
-    <h3 class="sect">named so far</h3>
-    <div class="card" style="padding:12px 14px">${n.people.map(p => `<span class="pill" style="margin:2px 4px 2px 0">${p}</span>`).join("")}</div>
   </div>${tabs('notebook')}`;
 }
 
 function scrArchive() {
+  const byYear = {};
+  D.stories.forEach(s => { (byYear[s.year] = byYear[s.year] || []).push(s); });
+  const years = Object.keys(byYear).sort((a,b) => a-b);
   return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">archive</span><span class="meta">7 passages</span></div>
-    <h2 class="title">What he said</h2>
-    <p class="sub">Every passage is checked against the transcript. Nothing here is a paraphrase.</p>
-    <div class="tabs"><button class="on">all</button><button onclick="go('archive')">with photos</button><button onclick="go('archive')">with family</button></div>
-    ${D.bios.map(b => `<div class="card tap" onclick="go('passage','${b.id}')">
-      <div class="row"><span class="eyebrow" style="color:#9a8f83">${b.theme}</span><span class="meta">${b.time}</span></div>
-      <p class="quote">${b.said.length>120 ? b.said.slice(0,120)+"…" : b.said}</p>
-      <div class="row" style="margin-top:10px">
-        <div>${b.photos?`<span class="tag green">${b.photos} photos</span>`:""}${b.perspectives?`<span class="tag violet">${b.perspectives} family</span>`:""}</div>
-        <span class="meta">▶ 0:${26+b.theme.length}</span>
-      </div></div>`).join("")}
+    <div class="appbar"><span class="eyebrow">archive</span><span class="meta">7 stories</span></div>
+    <h2 class="title">His life, as stories</h2>
+    <div class="search" onclick="toast('Search by words, or ask a question: “the shop”, “1962”, “mother”')">Search stories, people, places</div>
+    <div class="chips" id="chips">
+      <button class="on">all</button><button onclick="toast('Filtered: people')">by person</button>
+      <button onclick="toast('Filtered: year')">by year</button><button onclick="toast('Filtered: photos')">photos</button>
+      <button onclick="toast('Filtered: family accounts')">family</button><button onclick="toast('Filtered: thin themes')">thin</button>
+    </div>
+    <div class="tl">
+    ${years.map(y => `<div class="tl-year">${y}</div>${byYear[y].map(s => `
+      <div class="card tap" onclick="go('story','${s.id}')">
+        <div class="row"><span class="name">${s.title}</span><span class="meta">${s.time}</span></div>
+        <p class="quote" style="font-size:13.5px">${s.said.length>104?s.said.slice(0,104)+"…":s.said}</p>
+        <div style="margin-top:9px">${s.photos?`<span class="tag green">${s.photos} photos</span>`:""}${s.family?`<span class="tag violet">${s.family} family</span>`:""}<span class="tag">${s.place}</span></div>
+      </div>`).join("")}`).join("")}
+    </div>
+    <p class="note" style="margin-top:10px">Passages are the unit of proof; stories are the unit of memory. Tags are a fixed theme list plus whatever he named, and search also runs over meaning.</p>
   </div>${tabs('archive')}`;
 }
 
-function scrPassage() {
-  const b = D.bios.find(x => x.id === passage) || D.bios[0];
-  const p = D.perspectives[b.id] || [];
+function scrStory() {
+  const s = D.stories.find(x => x.id === story) || D.stories[0];
+  const p = D.perspectives[s.id] || [];
   return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('archive')">‹ Archive</button><span class="eyebrow">${b.theme} · ${b.time}</span></div>
-    <p class="asked">“${b.asked}”</p>
-    <p class="quote big" style="margin-top:10px">${b.said}</p>
-    <div class="photos">
-      ${Array.from({length:b.photos}).map(() => `<div class="ph">photo</div>`).join("")}
-      <div class="ph add" onclick="closeSheet();openSheet('photo')">+</div>
+    <div class="appbar"><button class="back" onclick="go('archive')">‹ Archive</button><span class="eyebrow">${s.year} · ${s.place}</span></div>
+    <h2 class="title" style="font-size:21px">${s.title}</h2>
+    <div class="meta-strip">
+      <div><b>when</b>${s.year}, from his words</div>
+      <div><b>where</b>${s.place}</div>
+      <div><b>named</b>${s.people.length} people</div>
+      <div><b>recorded</b>2 Nov, ${s.time}</div>
     </div>
-    <div class="row" style="margin-top:14px">
-      <div class="who"><div class="ring" style="width:30px;height:30px;font-size:11px">▶</div><span class="meta">hear it · 0:26</span></div>
-      <div><span class="tag green">his voice</span></div>
+    <p class="asked">“${s.asked}”</p>
+    <p class="quote big" style="margin-top:8px">${s.said}</p>
+    <div class="photos">${Array.from({length:s.photos}).map(() => `<div class="ph">photo</div>`).join("")}
+      <div class="ph add" onclick="openSheet('photo')">+</div></div>
+    <div class="row" style="margin-top:12px">
+      <div class="who"><div class="av" style="background:#F5EFE7;color:#7a7168">▶</div><span class="meta">hear it · 0:26</span></div>
+      <span class="tag green">his voice</span>
     </div>
-    ${p.length ? `<h3 class="sect">on this memory</h3>
-      ${p.map(x => `<div class="card" style="border-left:3px solid ${x.kind==='correction'?'#C9A227':'var(--violet)'}">
-        <div class="row"><div class="who"><div class="av v">${x.who[0]}</div><div><div class="name">${x.who}, ${x.rel}</div></div></div>
-        <span class="tag violet">${x.kind==='correction'?'correction':'her account'}</span></div>
+    ${p.length ? `<h3 class="sect">family accounts</h3>
+      ${p.map(x => `<div class="card" style="border-left:3px solid ${x.kind==='correction'?'var(--gold)':'var(--violet)'}">
+        <div class="row"><div class="who"><div class="av v">${x.who[0]}</div><div class="name">${x.who}, ${x.rel}</div></div>
+        <span class="tag ${x.kind==='correction'?'gold':'violet'}">${x.kind==='correction'?'correction':'her account'}</span></div>
         <p class="quote" style="font-size:14px;margin-top:8px">${x.text}</p>
         ${x.kind==='correction'?`<p class="note" style="margin-top:8px">Both stand. His story is not edited.</p>`:""}
-      </div>`).join("")}` : `<h3 class="sect">on this memory</h3><p class="note">Nobody has added anything yet. Family see only the passages where they are named.</p>`}
-    <button class="btn ghost" onclick="openSheet('perspective')">Add my account</button>
+      </div>`).join("")}` : `<h3 class="sect">family accounts</h3><p class="note">None yet.</p>`}
+    <button class="btn ghost" onclick="openSheet('invite-contrib')">Ask Susan about this</button>
+    <p class="note" style="margin-top:8px">This sends an invitation, not a text box. She contributes from her own view.</p>
   </div>${tabs('archive')}`;
 }
 
-function scrReview() {
+function scrPhotos() {
   return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('notebook')">‹ Notebook</button><span class="eyebrow">review</span></div>
-    <h2 class="title">Her next question</h2>
-    <p class="sub">She wrote it from the notebook. Nothing is asked until he says yes, and he may change a word.</p>
-    <div class="card" style="border-left:3px solid var(--accent)">
-      <div class="row"><span class="eyebrow" style="color:#B4532E">why this one</span></div>
-      <p class="note" style="margin-top:6px">Ah Kin is named twice and never followed. The thread was left open on the second call.</p>
-      <p class="quote" style="margin-top:12px;font-size:15px">What happened to Ah Kin after he worked for your father?</p>
-      <input value="What happened to Ah Kin after he worked for your father?" style="width:100%;margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13.5px;color:var(--ink);background:#fff">
-      <div class="btnrow"><button class="btn" onclick="go('talk')">Use it</button><button class="btn ghost" onclick="go('notebook')">Not this week</button></div>
+    <div class="appbar"><button class="back" onclick="go('archive')">‹ Back</button><span class="eyebrow">photos</span></div>
+    <h2 class="title">Three ways a photograph comes in</h2>
+    <div class="card tap" onclick="toast('Upload, then the next call opens with it')">
+      <div class="row"><span class="name">Start a story from it</span><span class="tag orange">cue</span></div>
+      <p class="note" style="margin-top:6px">Upload it before or during a call and she begins from it: who is this, where was it. The best use, and the reason photos are here at all.</p>
     </div>
-    <h3 class="sect">then, in order</h3>
-    ${D.notebook.threads.map((t,i) => `<div class="card" style="padding:11px 14px"><div class="row"><span class="meta" style="color:#5c534b">${i+2}. ${t}</span><span class="pill">queued</span></div></div>`).join("")}
-  </div>${tabs('notebook')}`;
+    <div class="card tap" onclick="toast('Choose a story to attach it to')">
+      <div class="row"><span class="name">Attach it to a story</span><span class="tag green">illustration</span></div>
+      <p class="note" style="margin-top:6px">It sits with the story it belongs to, shown when that story is read or played.</p>
+    </div>
+    <div class="card tap" onclick="toast('Choose a person')">
+      <div class="row"><span class="name">Add it to a person</span><span class="tag violet">identity</span></div>
+      <p class="note" style="margin-top:6px">A face she can recognise. She never asserts who anyone is from a picture; she asks.</p>
+    </div>
+    <h3 class="sect">what happens after upload</h3>
+    <div class="card" style="padding:12px 14px">
+      <p class="note" style="margin:0">The date on the file is used as a hint, never as a fact. She may ask “this says 1958, is that right?” and his answer is what gets written down.</p>
+    </div>
+    <button class="btn" onclick="openSheet('photo')">Choose photos</button>
+  </div>${tabs('archive')}`;
 }
 
 function scrSettings() {
-  const b = D.brief;
+  const s = D.settings;
   return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('talk')">‹ Back</button><span class="eyebrow">the brief</span></div>
-    <h2 class="title">How Mina asks</h2>
-    <p class="sub">Set in the first conversation. Change it whenever you like; she adapts on the next call, not this one.</p>
+    <div class="appbar"><span class="eyebrow">settings</span><span class="meta">${D.name}</span></div>
+    <h2 class="title">How she asks, and who sees</h2>
     <h3 class="sect">how much she draws you out</h3>
-    <div class="seg"><button class="${b.style==='passive'?'on':''}" onclick="setBrief('style','passive')">Let me talk</button><button class="${b.style==='prober'?'on':''}" onclick="setBrief('style','prober')">Draw me out</button><button class="${b.style==='deep'?'on':''}" onclick="setBrief('style','deep')">Dig deeper</button></div>
-    <h3 class="sect">how fast she speaks</h3>
-    <div class="seg"><button class="${b.speed==='slow'?'on':''}" onclick="setBrief('speed','slow')">Slow</button><button class="${b.speed==='normal'?'on':''}" onclick="setBrief('speed','normal')">Normal</button><button class="${b.speed==='faster'?'on':''}" onclick="setBrief('speed','faster')">Faster</button></div>
-    <h3 class="sect">what she calls you</h3>
-    <div class="card" style="padding:12px 14px"><div class="row"><span class="name" style="font-size:13.5px">${b.address}</span><span class="pill">said by you</span></div></div>
-    <h3 class="sect">never to bring up</h3>
-    <div class="card" style="padding:12px 14px"><div class="row"><span class="meta" style="color:#5c534b">${b.avoid}</span><span class="pill">said by you</span></div></div>
-    <p class="note" style="margin-top:8px">Only what you actually said can go on this list. If she guesses, it is shown as a guess and never blocks a subject.</p>
-    <h3 class="sect">patience before she answers</h3>
-    <div class="card" style="padding:12px 14px"><div class="row"><span class="meta" style="color:#5c534b">2.5 seconds, learned from your calls</span><span class="pill">automatic</span></div></div>
-  </div>${tabs('talk')}`;
+    <div class="seg"><button class="${s.style==='passive'?'on':''}" onclick="setS('style','passive')">Let me talk</button>
+      <button class="${s.style==='prober'?'on':''}" onclick="setS('style','prober')">Draw me out</button>
+      <button class="${s.style==='deep'?'on':''}" onclick="setS('style','deep')">Dig deeper</button></div>
+    <h3 class="sect">voice and speed</h3>
+    <div class="seg"><button class="${s.speed==='slow'?'on':''}" onclick="setS('speed','slow')">Slow</button>
+      <button class="${s.speed==='normal'?'on':''}" onclick="setS('speed','normal')">Normal</button>
+      <button class="${s.speed==='faster'?'on':''}" onclick="setS('speed','faster')">Faster</button></div>
+    <div class="card" style="padding:12px 14px"><div class="row"><span class="meta" style="color:#5c534b">Before she answers, she waits ${s.patience} seconds</span><span class="pill">learned</span></div></div>
+    <h3 class="sect">what she calls you · what is off limits</h3>
+    <div class="card" style="padding:12px 14px"><div class="row"><span class="name" style="font-size:13.5px">${s.address}</span><span class="pill">said by you</span></div></div>
+    <div class="card" style="padding:12px 14px"><div class="row"><span class="meta" style="color:#5c534b">${s.avoid}</span><span class="pill">said by you</span></div></div>
+    <p class="note" style="margin-top:6px">Only a subject you actually named can sit here. A guess is shown as a guess and never blocks anything.</p>
+    <h3 class="sect">who can see</h3>
+    <div class="card tap" onclick="openSheet('permissions')">
+      <div class="row"><span class="name" style="font-size:13.5px">3 people, 2 may contribute</span><span class="meta">Change ›</span></div>
+      <p class="note" style="margin-top:6px">Susan and Peter read only the stories where they are named. Nobody sees the transcript.</p>
+    </div>
+    <div class="card" style="padding:12px 14px">
+      <div class="row"><span class="meta" style="color:#5c534b">Consent record</span><span class="pill">append-only</span></div>
+      <p class="note" style="margin-top:6px">Every grant and every removal is a dated event. You can see who could read what on any day, and removing someone is replayed rather than edited away.</p>
+    </div>
+  </div>${tabs('settings')}`;
 }
 
-function scrSharing() {
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">sharing</span><span class="meta">${D.name}'s life</span></div>
-    <h2 class="title">Who sees this</h2>
-    <p class="sub">Only David decides this, and he can change it at any time.</p>
-    <h3 class="sect">who can read</h3>
-    <div class="card tap" onclick="toast('Only Susan and Peter can read')"><div class="row"><span class="name">Family you choose</span><span class="meta">3 people</span></div></div>
-    <div class="card"><div class="row"><span class="name" style="color:#9a8f83">Nobody else</span><span class="meta">·</span></div></div>
-    <h3 class="sect">who can add their account</h3>
-    <div class="card"><div class="row"><span class="name">Susan, Peter</span><span class="meta">2 people</span></div></div>
-    <h3 class="sect">people</h3>
-    ${[["Susan","daughter · can read, can add"],["Peter","son · can read, can add"],["Ah Kin","cousin · can read"]].map(([n,m]) =>
-      `<div class="card" style="padding:12px 14px"><div class="row"><div class="who"><div class="av">${n[0]}</div><div class="name" style="font-size:13.5px">${n}</div></div><span class="meta">${m}</span></div></div>`).join("")}
-    <button class="btn ghost" onclick="openSheet('invite')">Invite someone</button>
-    <p class="note" style="margin-top:12px">Anyone you invite sees only the memories where they are named. Never the transcript.</p>
-  </div>${tabs('sharing')}`;
-}
-
-/* ---- Susan's side ---- */
+/* ---- Susan ---- */
 function scrContrib() {
-  const mine = D.bios.filter(b => D.perspectives[b.id] && D.perspectives[b.id].some(p => p.who === "Susan"));
+  const mine = D.stories.filter(s => D.perspectives[s.id] && D.perspectives[s.id].some(p => p.who === "Susan"));
   return `<div class="scroll">
     <div class="appbar"><span class="eyebrow">stories about you</span><span class="meta">${mine.length} memories</span></div>
     <h2 class="title">David's life</h2>
-    <p class="sub">You were there for these. Add what you remember beside them.</p>
-    ${mine.map(b => `<div class="card tap" onclick="go('cfire', null); passage='${b.id}'">
-      <div class="row"><span class="name">${b.theme}</span><span class="meta">${b.time}</span></div>
-      <p class="quote" style="font-size:13.5px">${b.said.length>96?b.said.slice(0,96)+"…":b.said}</p>
-      <div class="row" style="margin-top:10px"><span class="tag violet">you added an account</span><span class="meta">▶</span></div>
-    </div>`).join("")}
-    <p class="note" style="margin-top:14px">You cannot change his words. You can add yours beside them, with your name on them.</p>
+    <p class="sub">You were there for these. Contribute what you remember and it sits beside his words, with your name on it.</p>
+    ${mine.map(s => `<div class="card tap" onclick="go('cstory','${s.id}')">
+      <div class="row"><span class="name">${s.title}</span><span class="meta">${s.year}</span></div>
+      <p class="quote" style="font-size:13.5px">${s.said.length>96?s.said.slice(0,96)+"…":s.said}</p>
+      <div style="margin-top:9px"><span class="tag violet">you added an account</span></div></div>`).join("")}
+    <p class="note" style="margin-top:12px">You cannot change his words. You can add yours beside them, and take them back at any time.</p>
   </div>${tabs('contrib')}`;
 }
 
-function scrCfire() {
-  const b = D.bios.find(x => x.id === passage) || D.bios[0];
-  const p = D.perspectives[b.id] || [];
+function scrCstory() {
+  const s = D.stories.find(x => x.id === story) || D.stories[0];
   return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('contrib')">‹ About you</button><span class="eyebrow">${b.theme}</span></div>
-    <p class="quote big">${b.said}</p>
-    <p class="note" style="margin-top:6px">his words · you can read and hear these, not change them</p>
-    <h3 class="sect">on this memory</h3>
-    ${p.map(x => `<div class="card" style="border-left:3px solid var(--violet)">
-      <div class="row"><div class="who"><div class="av v">${x.who[0]}</div><div class="name">${x.who}, ${x.rel}</div></div><span class="tag violet">account</span></div>
-      <p class="quote" style="font-size:14px;margin-top:8px">${x.text}</p></div>`).join("")}
-    <button class="btn" onclick="go('add')">Add my account</button>
-  </div>${tabs('contrib')}`;
+    <div class="appbar"><button class="back" onclick="go('contrib')">‹ About you</button><span class="eyebrow">${s.year}</span></div>
+    <h2 class="title" style="font-size:21px">${s.title}</h2>
+    <p class="quote big">${s.said}</p>
+    <p class="note" style="margin-top:6px">his words · you may read and hear these, not change them</p>
+    <div class="photos" style="margin-top:12px">${Array.from({length:s.photos||1}).map(() => `<div class="ph">photo</div>`).join("")}</div>
+    <h3 class="sect">your account</h3>
+    ${(D.perspectives[s.id]||[]).map(x => `<div class="card" style="border-left:3px solid var(--violet)">
+      <div class="row"><div class="who"><div class="av v">${x.who[0]}</div><div class="name">${x.who}</div></div><span class="tag violet">yours</span></div>
+      <p class="quote" style="font-size:14px;margin-top:8px">${x.text}</p></div>`).join("") || `<p class="note">Nothing yet.</p>`}
+    <button class="btn" onclick="go('contribute')">Contribute</button>
+  </div>${tabs('cstory')}`;
 }
 
-function scrAdd() {
-  const b = D.bios.find(x => x.id === passage) || D.bios[0];
+function scrContribute() {
+  const s = D.stories.find(x => x.id === story) || D.stories[0];
   return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('cfire')">‹ Back</button><span class="eyebrow">add to this memory</span></div>
-    <p class="asked">His words: “${b.said.slice(0,80)}…”</p>
-    <div class="card" style="margin-top:14px;min-height:96px">
-      <p style="font-size:14.5px;color:#bcb2a4;margin:0" id="draft">What do you remember about that night?</p>
-    </div>
-    <button class="btn ghost" onclick="document.getElementById('draft').innerHTML='I was nine. I remember being carried down the stairs and the smell, and being told the shop was fine when it wasn&#39;t.';document.getElementById('draft').style.color='var(--ink)'">Speak it instead</button>
+    <div class="appbar"><button class="back" onclick="go('cstory')">‹ Back</button><span class="eyebrow">contribute</span><span class="pill">as Susan</span></div>
+    <div class="ph" style="width:100%;height:150px;margin-bottom:12px">photograph · ${s.title}</div>
+    <div class="bubble">His words: “${s.said}”</div>
+    <div class="bubble her">What do you remember about that night? Anything at all, even a smell.</div>
+    <div class="field">Speak, or type here…</div>
+    <div class="btnrow"><button class="btn ghost" onclick="toast('Listening…')">● Speak it</button><button class="btn" onclick="toast('Added beside his words')">Add</button></div>
     <h3 class="sect">how it will appear</h3>
     <div class="card" style="border-left:3px solid var(--violet)">
       <div class="row"><div class="who"><div class="av v">S</div><div class="name">Susan, his daughter</div></div><span class="tag violet">her account</span></div>
-      <p class="note" style="margin-top:6px">Your words, with your name. Never mixed into his.</p>
+      <p class="note" style="margin-top:6px">Your words, with your name. Never mixed into his, and removable at any time.</p>
     </div>
-    <button class="btn" onclick="toast('Added beside his words')">Add this account</button>
-    <p class="note" style="text-align:center;margin-top:10px">David will see it. He can ask you to take it down.</p>
-  </div>`;
+  </div>${tabs('cstory')}`;
 }
 
 function scrInvite() {
   return `<div class="scroll">
     <div class="appbar"><span class="eyebrow">storykeeper</span><span class="pill">invitation</span></div>
-    <h2 class="title" style="margin-top:26px">David has asked you to add your memories</h2>
-    <p class="sub" style="margin-top:10px">He is recording his life, and the stories where you appear are yours too. You can read them, and add what you remember beside them.</p>
-    <div class="card" style="margin-top:18px"><div class="row"><span class="name" style="font-size:13.5px">You will be shown</span><span class="meta">4 memories</span></div></div>
-    <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You can add</span><span class="meta">your own account</span></div></div>
+    <h2 class="title" style="margin-top:24px">David has asked you to contribute to his life story</h2>
+    <p class="sub" style="margin-top:10px">He is recording it. The stories where you appear are yours too, and you can add what you remember beside them.</p>
+    <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You will be shown</span><span class="meta">4 memories</span></div></div>
+    <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You can contribute</span><span class="meta">your own account</span></div></div>
     <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You cannot</span><span class="meta">change his words</span></div></div>
     <button class="btn" onclick="setRole('susan')">Accept</button>
     <button class="btn ghost" onclick="toast('Nothing is shared')">Not now</button>
-    <p class="note" style="text-align:center;margin-top:12px">You can leave at any time, and take your words with you.</p>
+    <p class="note" style="text-align:center;margin-top:10px">You can leave whenever you like, and take your words with you.</p>
   </div>`;
 }
 
 /* ------------------------------------------------------------------ sheets */
 function openSheet(kind) {
   const s = document.getElementById("sheet"), inner = document.getElementById("sheetInner");
-  if (kind === "photo") {
-    inner.innerHTML = `<div class="grab"></div>
-      <h3 class="sect" style="margin-top:0">add a photograph</h3>
-      <p class="sub">It will sit with this story. A picture with no story attached has no home here.</p>
-      <div class="photos"><div class="ph">choose</div><div class="ph">camera</div></div>
-      <button class="btn" onclick="closeSheet()">Done</button>`;
-  } else if (kind === "perspective") {
-    inner.innerHTML = `<div class="grab"></div>
-      <h3 class="sect" style="margin-top:0">add your account</h3>
-      <p class="sub">Your words, with your name. His story is not edited.</p>
-      <div class="card" style="min-height:80px"><p class="note" style="margin:0">What do you remember?</p></div>
-      <button class="btn" onclick="closeSheet();toast('Added beside his words')">Add</button>`;
-  } else {
-    inner.innerHTML = `<div class="grab"></div>
-      <h3 class="sect" style="margin-top:0">invite someone</h3>
-      <p class="sub">They will see only the memories where they are named.</p>
-      <div class="card" style="padding:12px 14px"><span class="meta">Phone number or email</span></div>
-      <div class="card" style="padding:12px 14px"><span class="meta">How they are related · daughter, son, cousin</span></div>
-      <button class="btn" onclick="closeSheet();toast('David confirms invitations')">Send invitation</button>`;
-  }
+  if (kind === "photo") inner.innerHTML = `<div class="grab"></div>
+    <h3 class="sect" style="margin-top:0">add a photograph</h3>
+    <p class="sub">Choose what it is for. A picture with no story and no person has no home here.</p>
+    <div class="seg"><button class="on">Start a story</button><button>Attach to one</button><button>Add to a person</button></div>
+    <div class="photos"><div class="ph">library</div><div class="ph">camera</div></div>
+    <button class="btn" onclick="closeSheet();toast('She will open the next call with it')">Done</button>`;
+  else if (kind === "invite-contrib") inner.innerHTML = `<div class="grab"></div>
+    <h3 class="sect" style="margin-top:0">ask someone about this story</h3>
+    <p class="sub">They are invited to add their own account. You are not writing on their behalf.</p>
+    <div class="card" style="padding:12px 14px"><div class="who"><div class="av v">S</div><div><div class="name" style="font-size:13.5px">Susan, his daughter</div><div class="meta">can read and contribute</div></div></div></div>
+    <button class="btn" onclick="closeSheet();toast('Invitation sent')">Send invitation</button>`;
+  else if (kind === "permissions") inner.innerHTML = `<div class="grab"></div>
+    <h3 class="sect" style="margin-top:0">who can see what</h3>
+    <p class="sub">Three tiers, one direction. Nothing moves up a tier without you saying so.</p>
+    <div class="card" style="padding:12px 14px"><div class="row"><span class="name" style="font-size:13.5px">Stories</span><span class="meta">family you choose</span></div>
+      <p class="note" style="margin-top:5px">What is shared: his passages, photos, family accounts.</p></div>
+    <div class="card" style="padding:12px 14px"><div class="row"><span class="name" style="font-size:13.5px">Raw transcripts</span><span class="meta">nobody</span></div>
+      <p class="note" style="margin-top:5px">Including his hesitations and the things he said and took back.</p></div>
+    <div class="card" style="padding:12px 14px"><div class="row"><span class="name" style="font-size:13.5px">Photos of other people</span><span class="meta">ask first</span></div>
+      <p class="note" style="margin-top:5px">A face is not yours to publish because it is in your album.</p></div>
+    <button class="btn" onclick="closeSheet()">Done</button>`;
   s.classList.add("on");
 }
 function closeSheet() { document.getElementById("sheet").classList.remove("on"); }
 function toast(msg) {
   const inner = document.getElementById("sheetInner");
-  openSheet("perspective");
-  inner.innerHTML = `<div class="grab"></div><p class="quote" style="text-align:center;padding:22px 4px">${msg}</p><button class="btn" onclick="closeSheet()">Close</button>`;
+  openSheet("permissions");
+  inner.innerHTML = `<div class="grab"></div><p class="quote" style="text-align:center;padding:18px 6px">${msg}</p><button class="btn" onclick="closeSheet()">Close</button>`;
 }
-
-function setBrief(k, v) { D.brief[k] = v; render(); }
+function toggle() { listening = !listening; render(); }
+function setS(k, v) { D.settings[k] = v; render(); }
 
 /* ------------------------------------------------------------------ render */
 function render() {
-  const map = { talk: scrTalk, session: scrSession, notebook: scrNotebook, archive: scrArchive,
-    passage: scrPassage, review: scrReview, settings: scrSettings, sharing: scrSharing,
-    contrib: scrContrib, cfire: scrCfire, add: scrAdd, invite: scrInvite };
+  const map = { talk:scrTalk, session:scrSession, notebook:scrNotebook, archive:scrArchive,
+    story:scrStory, photos:scrPhotos, settings:scrSettings, contrib:scrContrib,
+    cstory:scrCstory, contribute:scrContribute, invite:scrInvite };
   phone().innerHTML = '<div class="screen">' + (map[cur] || scrTalk)() + '</div>';
   document.getElementById("what").innerHTML = WHAT[cur] || "";
   paintRole();
   location.hash = cur;
 }
 
-/* deep links: #passage, #sharing … so a screen can be shared or screenshotted */
 const start = (location.hash || "").replace("#", "");
 cur = Object.keys(WHAT).includes(start) ? start : "talk";
-setRole(["contrib","cfire","add","invite"].includes(cur) ? "susan" : "david", false);
+setRole(["contrib","cstory","contribute","invite"].includes(cur) ? "susan" : "david", false);
 go(cur);
 </script>
 </body>
