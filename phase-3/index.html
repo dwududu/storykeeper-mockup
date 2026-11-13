@@ -243,20 +243,39 @@ const D = {
   settings: { style:"prober", speed:"normal", avoid:"my brother's death", address:"Dave", patience:2.5 }
 };
 
+// Which phase this build is. Each phase is a different app: screens, roles and
+// functions that do not exist in that phase must not appear at all, because a
+// button that opens nothing is a promise the build cannot keep.
+const PHASE = (window.PHASE === undefined) ? null : window.PHASE;
+const PHASE_HOME = { 0:"launch", 1:"talk", 2:"story", 3:"gift" };
+const ROLES_BY_PHASE = { 0:["design"], 1:["david"], 2:["david","susan"], 3:["buyer","david"] };
+const ALLOWED = PHASE === null ? ["david","susan","buyer"] : ROLES_BY_PHASE[PHASE];
+const HAS = {
+  notebook:   PHASE === null || PHASE === 1,          // the plan and the corpus
+  perspectives: PHASE === null || PHASE >= 2,          // other people's accounts
+  invite:     PHASE === null || PHASE >= 2,            // inviting a contributor
+  sharedFilter: PHASE === null || PHASE >= 2,          // stories shared with me
+  buyer:      PHASE === null || PHASE === 3,           // gifting
+};
+
 const SCREENS = {
+  design: [
+    { id:"style",    label:"Design system",  sub:"tokens, type, states", ph:[0] },
+    { id:"launch",   label:"Launch",         sub:"the first second", ph:[0] },
+  ],
   david: [
-    { id:"launch",   label:"Launch",          sub:"the first second", ph:[0,1] },
-    { id:"talk",     label:"Call",            sub:"she speaks first", ph:[0,1] },
-    { id:"session",  label:"In a session",    sub:"photo cue", ph:[0,1] },
+    { id:"launch",   label:"Launch",          sub:"the first second", ph:[0] },
+    { id:"talk",     label:"Call",            sub:"she speaks first", ph:[1] },
+    { id:"session",  label:"In a session",    sub:"photo cue", ph:[1] },
     { id:"notebook", label:"Notebook",        sub:"your own map", ph:[1] },
     { id:"aspect",   label:"An aspect",       sub:"pick, then plan", ph:[1] },
     { id:"archive",  label:"Archive",         sub:"everything you can see", ph:[1] },
-    { id:"story",    label:"A story",         sub:"words, photos, people", ph:[1,2] },
+    { id:"story",    label:"A story",         sub:"words, photos, people", ph:[1] },
     { id:"perspective", label:"A perspective", sub:"someone else's", ph:[2] },
     { id:"settings", label:"Settings",        sub:"core first", ph:[1] }
   ],
   susan: [
-    { id:"invite",    label:"The invitation",  sub:"install, or a link", ph:[2,3] },
+    { id:"invite",    label:"The invitation",  sub:"install, or a link", ph:[2] },
     { id:"contrib",   label:"Stories about you", sub:"where you appear", ph:[2] },
     { id:"cstory",    label:"One memory",      sub:"his words", ph:[2] },
     { id:"contribute",label:"Contribute",      sub:"by voice", ph:[2] }
@@ -268,6 +287,7 @@ const SCREENS = {
 };
 
 const WHAT = {
+  style: "<b>Phase 0, in full.</b><p>Colour, type, buttons, the state control, tags, motion and the accessibility floor. Nothing on this page is a feature. The screens come in Phase 1, and no screen from a later phase appears in this build.</p>",
   launch: "<b>The first second.</b><p>A mark that breathes, the name, and a rule drawn underneath. No logo animation that delays anything: it holds for about a second while the voice warms, then the call opens.</p>",
   talk: "<b>Her, not a blank page.</b><p>Her name, a waveform that only moves when she speaks, the caption of what she is saying, and the last story as a chip you can tap. The screen is warm because a person is talking to you.</p>",
   session: "<b>One control, and an honest exit.</b><p>The button says who has the floor. Done asks once, so a story mid-sentence is not lost to a mistap.</p>",
@@ -286,8 +306,6 @@ const WHAT = {
 };
 
 /* ------------------------------------------------------------------ state */
-const PHASE = (window.PHASE === undefined) ? null : window.PHASE;
-const PHASE_HOME = { 0:"launch", 1:"talk", 2:"story", 3:"gift" };
 let role = "david", cur = "launch", story = "fire", perspective = "p1", listening = true, aspect = "childhood";
 
 const phone = () => document.getElementById("view");
@@ -296,7 +314,11 @@ const wave = () => `<div class="wave">${Array.from({length:7}).map(()=>"<i></i>"
 
 function go(id, arg) { if (arg) story = arg; cur = id; render(); }
 function goA(id, aid) { aspect = aid; go(id); }
-function setRole(r, nav = true) { role = r; paintRole(); if (nav) go(r === "david" ? "launch" : r === "susan" ? "invite" : "gift"); }
+function setRole(r, nav = true) {
+  if (!ALLOWED.includes(r)) r = ALLOWED[0];
+  role = r; paintRole();
+  if (nav) go(r === "david" ? PHASE_HOME[PHASE ?? 1] : r === "susan" ? "contrib" : r === "design" ? "style" : "gift");
+}
 
 function paintPhaseNav() {
   const nav = document.getElementById("phaseNav");
@@ -318,11 +340,20 @@ function paintPhaseNav() {
 
 function paintRole() {
   paintPhaseNav();
-  ["david","susan","buyer"].forEach(r => document.getElementById("r"+r[0].toUpperCase()+r.slice(1)).classList.toggle("on", role === r));
+  const roleRow = document.querySelector(".role");
+  if (roleRow) roleRow.style.display = (PHASE === 0) ? "none" : "";
+  ["david","susan","buyer"].forEach(r => {
+    const b = document.getElementById("r"+r[0].toUpperCase()+r.slice(1));
+    if (!b) return;
+    b.style.display = ALLOWED.includes(r) ? "" : "none";
+    b.classList.toggle("on", role === r);
+  });
   const list = document.getElementById("list"); list.innerHTML = "";
   // Filtered to the phase, but never hide the screen you are actually on: a link
   // from inside a phase (a story opens a perspective) must still show its place.
-  const shown = SCREENS[role].filter(s => PHASE === null || (s.ph || []).includes(PHASE) || s.id === cur);
+  // Screens are cumulative: what Phase 1 built still exists in Phase 3. `ph` is
+  // the phase a screen is introduced in, never the only phase it lives in.
+  const shown = SCREENS[role].filter(s => PHASE === null || (s.ph || [0]).some(p => p <= PHASE) || s.id === cur);
   shown.forEach(s => {
     const b = el(`<button onclick="go('${s.id}')"><span>${s.label}</span><small>${s.sub}</small></button>`);
     if (s.id === cur) b.classList.add("on");
@@ -341,6 +372,46 @@ function tabs(active) {
 }
 
 /* ------------------------------------------------------------------ screens */
+
+function scrStyle() {
+  const sw = [
+    ["paper","#F6F1E7","body text"], ["card","#FFFDF8","surfaces"], ["ink","#1A1714","headings · 16.1:1"],
+    ["deep","#2F4A3F","primary action · 8.2:1"], ["brass","#A8641F","accents · 4.6:1"],
+    ["oxblood","#8C3A2E","disagreement · 6.4:1"], ["slate","#5B6B73","other voices · 4.9:1"]
+  ];
+  return `<div class="scroll">
+    <div class="appbar"><span class="eyebrow">design system</span><span class="meta">phase 0</span></div>
+    <h2 class="title">What this looks like</h2>
+    <p class="sub">Tokens, type and states. This page is the whole of Phase 0: nothing here is a feature, and no screen below exists yet.</p>
+    <h3 class="sect">colour · contrast measured at use</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${sw.map(([n,c,use]) => `<div style="flex:1 1 44%">
+        <div style="height:44px;border-radius:10px;background:${c};border:1px solid #E4DCCE"></div>
+        <div class="note" style="margin-top:4px"><b style="color:#1A1714">${n}</b> · ${use}</div></div>`).join("")}
+    </div>
+    <h3 class="sect">type</h3>
+    <div class="card"><p style="font-family:Georgia,serif;font-size:26px;margin:0;color:#1A1714">A life, in his words</p>
+      <p class="note" style="margin-top:4px">serif · titles and quotations</p></div>
+    <div class="card"><p style="font-size:17px;line-height:1.6;margin:0;color:#1A1714">Body text at 17, never below 16. A 75 year old is reading this at arm's length in a dim room.</p>
+      <p class="note" style="margin-top:4px">sans · everything else</p></div>
+    <h3 class="sect">buttons · one primary per screen</h3>
+    <button class="btn" onclick="toast('primary')">Primary</button>
+    <button class="btn ghost" onclick="toast('secondary')">Secondary</button>
+    <h3 class="sect">the state control · the only control on a call</h3>
+    <div class="talkbar" style="border:1px solid #E4DCCE;border-radius:12px;margin-top:8px">
+      <button class="statebtn listen"><span class="led"></span><span class="txt">Listening — your turn</span><span class="hint">tap to interrupt</span></button>
+    </div>
+    <div class="talkbar" style="border:1px solid #E4DCCE;border-radius:12px;margin-top:8px">
+      <button class="statebtn"><span class="led"></span><span class="txt">Mina speaking</span><span class="hint">tap to pause her</span></button>
+    </div>
+    <h3 class="sect">tags</h3>
+    <div><span class="tag deep">photos</span><span class="tag brass">quoted</span><span class="tag slate">his voice</span><span class="tag ox">subject</span></div>
+    <p class="note" style="margin-top:6px">Tag colours carry meaning, not decoration: green for what is in the record, brass for what guides it, slate for a voice other than his, oxblood for a disagreement.</p>
+    <h3 class="sect">motion and floor</h3>
+    <p class="note">120ms for state, 240ms for a sheet, nothing decorative over 400ms, reduce-motion respected. 44px minimum tap target, focus visible, 200% text without clipping.</p>
+  </div>`;
+}
+
 function scrLaunch() {
   return `<div class="launch">
     <div class="mark"></div>
@@ -442,7 +513,7 @@ function scrArchive() {
     <p class="sub">Your own stories and the ones family have shared. One search across all of it.</p>
     <div class="search" onclick="toast('Search words, people, places, or ask a question')">Search stories, people, places</div>
     <div class="chips"><button class="on">all</button><button onclick="toast('Filtered: mine')">mine</button>
-      <button onclick="toast('Filtered: shared with me')">shared with me</button>
+      ${HAS.sharedFilter ? `<button onclick="toast('Filtered: shared with me')">shared with me</button>` : ""}
       <button onclick="toast('Filtered: photos')">photos</button><button onclick="toast('Filtered: perspectives')">perspectives</button>
       <button onclick="toast('Filtered: year')">by year</button></div>
     <div class="tl">
@@ -479,6 +550,7 @@ function scrStory() {
     ${s.mine ? `<button class="btn ghost" style="margin-top:14px" onclick="openSheet('correct')">Correct or add to this</button>` : ""}
     ${s.calls>1 ? `<h3 class="sect">nights this was recorded</h3>
       <div class="card" style="padding:12px 14px"><p class="note" style="margin:0">2 Nov · 4:12 – 6:03 · the fire itself<br>9 Nov · 2:40 · what was in the back room<br>6 Nov · 1:10 · who came the next morning</p></div>` : ""}
+    ${HAS.perspectives ? `
     <h3 class="sect">perspectives</h3>
     ${p.length ? p.map(x => `<div class="card tap" style="border-left:3px solid ${x.kind==='correction'?'var(--oxblood)':'var(--slate)'}" onclick="goP('${x.id}')">
         <div class="row"><div class="who"><div class="av v">${x.who[0]}</div><div class="name">${x.who}, ${x.rel}</div></div>
@@ -486,7 +558,7 @@ function scrStory() {
         <p class="quote" style="font-size:14px;margin-top:8px">${x.text.length>110?x.text.slice(0,110)+"…":x.text}</p>
         <p class="note" style="margin-top:6px">${x.when} · open ›</p></div>`).join("") : `<p class="note">Nobody else has added anything yet.</p>`}
     <button class="btn ghost" onclick="openSheet('invite')">Invite collaborators</button>
-    <p class="note" style="margin-top:8px">Anyone who was there, if he says so. Not only family.</p>
+    <p class="note" style="margin-top:8px">Anyone who was there, if he says so. Not only family.</p>` : ""}
   </div>${tabs('archive')}`;
 }
 
@@ -679,7 +751,7 @@ function setS(k, v) { D.settings[k] = v; render(); }
 
 /* ------------------------------------------------------------------ render */
 function render() {
-  const map = { launch:scrLaunch, talk:scrTalk, session:scrSession, notebook:scrNotebook, aspect:scrAspect,
+  const map = { style:scrStyle, launch:scrLaunch, talk:scrTalk, session:scrSession, notebook:scrNotebook, aspect:scrAspect,
     archive:scrArchive, story:scrStory, perspective:scrPerspective, settings:scrSettings,
     invite:scrInvite, contrib:scrContrib, cstory:scrCstory, contribute:scrContribute,
     gift:scrGift, progress:scrProgress };
@@ -691,10 +763,15 @@ function render() {
   location.hash = cur;
 }
 
+function roleFor(id) {
+  if (PHASE === 0) return "design";
+  if (["invite","contrib","cstory","contribute"].includes(id)) return "susan";
+  if (id === "gift" || id === "progress") return "buyer";
+  return "david";
+}
 const start = (location.hash || "").replace("#", "");
-cur = Object.keys(WHAT).includes(start) ? start : (PHASE === null ? "launch" : PHASE_HOME[PHASE]);
-setRole(start.startsWith("gift") || start === "progress" ? "buyer"
-      : ["invite","contrib","cstory","contribute"].includes(start) ? "susan" : "david", false);
+cur = Object.keys(WHAT).includes(start) ? start : (PHASE === null ? "launch" : PHASE === 0 ? "style" : PHASE_HOME[PHASE]);
+setRole(roleFor(cur), false);
 go(cur);
 </script>
 </body>
