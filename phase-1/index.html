@@ -163,7 +163,7 @@
 <div class="shell">
   <aside class="notes">
     <h1 id="phaseTitle">Storykeeper · spec v4</h1>
-    <p class="lede">One app, three people in it: the storyteller, the family who add a perspective, and the buyer when it is a gift. Everything here is clickable.</p>
+    <p class="lede" id="lede">One app, three people in it: the storyteller, the family who add a perspective, and the buyer when it is a gift. Everything here is clickable.</p>
     <div class="phases" id="phaseNav"></div>
     <div class="role">
       <button id="rDavid" class="on" onclick="setRole('david')">Storyteller</button>
@@ -756,7 +756,19 @@ function render() {
     invite:scrInvite, contrib:scrContrib, cstory:scrCstory, contribute:scrContribute,
     gift:scrGift, progress:scrProgress };
   phone().innerHTML = '<div class="screen">' + (map[cur] || scrLaunch)() + '</div>';
-  document.getElementById("what").innerHTML = WHAT[cur] || "";
+  let whatText = WHAT[cur] || "";
+  if (cur === "story" && !HAS.perspectives)
+    whatText = "<b>His record, with room to correct it.</b><p>He can add to or correct his own story, which opens a conversation with it loaded. Nothing else is here: no other voices, no invitations. Those come in Phase 2.</p>";
+  document.getElementById("what").innerHTML = whatText;
+
+  const LEDE = {
+    0: "The look and feel only. Colour, type, components and motion, because everything later is built from them.",
+    1: "One app, one person, recording their own life. No sharing and no gifting: those arrive in later phases, and nothing from them appears here.",
+    2: "The same app, plus family. People read only the stories that name them, and add their own account beside his.",
+    3: "A gift bought by someone else, used by a person who never opens a setting.",
+  };
+  const ledeEl = document.getElementById("lede");
+  if (ledeEl && PHASE !== null) ledeEl.textContent = LEDE[PHASE];
   const pt = document.getElementById("phaseTitle");
   if (pt && PHASE !== null) pt.textContent = ["Phase 0 · identity and feel","Phase 1 · the individual product","Phase 2 · sharing and collaboration","Phase 3 · gifting and remote setup"][PHASE];
   paintRole();
