@@ -167,7 +167,6 @@
     <div class="phases" id="phaseNav"></div>
     <div class="role">
       <button id="rDavid" class="on" onclick="setRole('david')">Storyteller</button>
-      <button id="rSusan" onclick="setRole('susan')">Family</button>
       <button id="rBuyer" onclick="setRole('buyer')">Buyer</button>
     </div>
     <div class="screens" id="list"></div>
@@ -259,10 +258,6 @@ const HAS = {
 };
 
 const SCREENS = {
-  design: [
-    { id:"style",    label:"Design system",  sub:"tokens, type, states", ph:[0] },
-    { id:"launch",   label:"Launch",         sub:"the first second", ph:[0] },
-  ],
   david: [
     { id:"launch",   label:"Launch",          sub:"the first second", ph:[0] },
     { id:"talk",     label:"Call",            sub:"she speaks first", ph:[1] },
@@ -274,20 +269,14 @@ const SCREENS = {
     { id:"perspective", label:"A perspective", sub:"someone else's", ph:[2] },
     { id:"settings", label:"Settings",        sub:"core first", ph:[1] }
   ],
-  susan: [
-    { id:"invite",    label:"The invitation",  sub:"install, or a link", ph:[2] },
-    { id:"contrib",   label:"Stories about you", sub:"where you appear", ph:[2] },
-    { id:"cstory",    label:"One memory",      sub:"his words", ph:[2] },
-    { id:"contribute",label:"Contribute",      sub:"by voice", ph:[2] }
-  ],
   buyer: [
     { id:"gift",     label:"Give it",        sub:"before she starts", ph:[3] },
     { id:"progress", label:"Progress",       sub:"counts, not content", ph:[3] }
   ]
+
 };
 
 const WHAT = {
-  style: "<b>Phase 0, in full.</b><p>Colour, type, buttons, the state control, tags, motion and the accessibility floor. Nothing on this page is a feature. The screens come in Phase 1, and no screen from a later phase appears in this build.</p>",
   launch: "<b>The first second.</b><p>A mark that breathes, the name, and a rule drawn underneath. No logo animation that delays anything: it holds for about a second while the voice warms, then the call opens.</p>",
   talk: "<b>Her, not a blank page.</b><p>Her name, a waveform that only moves when she speaks, the caption of what she is saying, and the last story as a chip you can tap. The screen is warm because a person is talking to you.</p>",
   session: "<b>One control, and an honest exit.</b><p>The button says who has the floor. Done asks once, so a story mid-sentence is not lost to a mistap.</p>",
@@ -303,6 +292,7 @@ const WHAT = {
   contribute: "<b>Voice first.</b><p>She hears the story, then a prompt, then speaks. Typing is the fallback.</p>",
   gift: "<b>The gift is a door, not a purchase.</b><p>The buyer sets up nothing about the life. They write a note, name the person, and pay. The first screen the storyteller sees is that note, not a product tour.</p>",
   progress: "<b>Counts, not content.</b><p>The buyer sees that stories are being made, never what they say, unless the storyteller opens them. This is the opposite of the industry default and it is the reason a parent would trust it.</p>"
+
 };
 
 /* ------------------------------------------------------------------ state */
@@ -361,56 +351,18 @@ function paintRole() {
   });
 }
 
+// Tabs are derived from the screen table rather than hard-coded, so a phase build
+// cannot carry the name of a screen it does not contain.
+const TAB_IDS = { david:["talk","notebook","archive","settings"], susan:["contrib","cstory"],
+                  buyer:["gift","progress"], design:[] };
 function tabs(active) {
-  const mine = role === "david"
-    ? [["talk","Call"],["notebook","Notebook"],["archive","Archive"],["settings","Settings"]]
-    : role === "susan"
-    ? [["contrib","About you"],["cstory","One memory"]]
-    : [["gift","Give it"],["progress","Progress"]];
-  return `<div class="tabbar">${mine.map(([id,label]) =>
-    `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${label}</button>`).join("")}</div>`;
+  const byId = Object.fromEntries(SCREENS[role].map(s => [s.id, s.label]));
+  const mine = (TAB_IDS[role] || []).filter(id => byId[id]);
+  return `<div class="tabbar">${mine.map(id =>
+    `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${byId[id]}</button>`).join("")}</div>`;
 }
 
 /* ------------------------------------------------------------------ screens */
-
-function scrStyle() {
-  const sw = [
-    ["paper","#F6F1E7","body text"], ["card","#FFFDF8","surfaces"], ["ink","#1A1714","headings · 16.1:1"],
-    ["deep","#2F4A3F","primary action · 8.2:1"], ["brass","#A8641F","accents · 4.6:1"],
-    ["oxblood","#8C3A2E","disagreement · 6.4:1"], ["slate","#5B6B73","other voices · 4.9:1"]
-  ];
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">design system</span><span class="meta">phase 0</span></div>
-    <h2 class="title">What this looks like</h2>
-    <p class="sub">Tokens, type and states. This page is the whole of Phase 0: nothing here is a feature, and no screen below exists yet.</p>
-    <h3 class="sect">colour · contrast measured at use</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:8px">
-      ${sw.map(([n,c,use]) => `<div style="flex:1 1 44%">
-        <div style="height:44px;border-radius:10px;background:${c};border:1px solid #E4DCCE"></div>
-        <div class="note" style="margin-top:4px"><b style="color:#1A1714">${n}</b> · ${use}</div></div>`).join("")}
-    </div>
-    <h3 class="sect">type</h3>
-    <div class="card"><p style="font-family:Georgia,serif;font-size:26px;margin:0;color:#1A1714">A life, in his words</p>
-      <p class="note" style="margin-top:4px">serif · titles and quotations</p></div>
-    <div class="card"><p style="font-size:17px;line-height:1.6;margin:0;color:#1A1714">Body text at 17, never below 16. A 75 year old is reading this at arm's length in a dim room.</p>
-      <p class="note" style="margin-top:4px">sans · everything else</p></div>
-    <h3 class="sect">buttons · one primary per screen</h3>
-    <button class="btn" onclick="toast('primary')">Primary</button>
-    <button class="btn ghost" onclick="toast('secondary')">Secondary</button>
-    <h3 class="sect">the state control · the only control on a call</h3>
-    <div class="talkbar" style="border:1px solid #E4DCCE;border-radius:12px;margin-top:8px">
-      <button class="statebtn listen"><span class="led"></span><span class="txt">Listening — your turn</span><span class="hint">tap to interrupt</span></button>
-    </div>
-    <div class="talkbar" style="border:1px solid #E4DCCE;border-radius:12px;margin-top:8px">
-      <button class="statebtn"><span class="led"></span><span class="txt">Mina speaking</span><span class="hint">tap to pause her</span></button>
-    </div>
-    <h3 class="sect">tags</h3>
-    <div><span class="tag deep">photos</span><span class="tag brass">quoted</span><span class="tag slate">his voice</span><span class="tag ox">subject</span></div>
-    <p class="note" style="margin-top:6px">Tag colours carry meaning, not decoration: green for what is in the record, brass for what guides it, slate for a voice other than his, oxblood for a disagreement.</p>
-    <h3 class="sect">motion and floor</h3>
-    <p class="note">120ms for state, 240ms for a sheet, nothing decorative over 400ms, reduce-motion respected. 44px minimum tap target, focus visible, 200% text without clipping.</p>
-  </div>`;
-}
 
 function scrLaunch() {
   return `<div class="launch">
@@ -751,10 +703,7 @@ function setS(k, v) { D.settings[k] = v; render(); }
 
 /* ------------------------------------------------------------------ render */
 function render() {
-  const map = { style:scrStyle, launch:scrLaunch, talk:scrTalk, session:scrSession, notebook:scrNotebook, aspect:scrAspect,
-    archive:scrArchive, story:scrStory, perspective:scrPerspective, settings:scrSettings,
-    invite:scrInvite, contrib:scrContrib, cstory:scrCstory, contribute:scrContribute,
-    gift:scrGift, progress:scrProgress };
+  const map = { launch:scrLaunch, talk:scrTalk, session:scrSession, notebook:scrNotebook, aspect:scrAspect, archive:scrArchive, story:scrStory, perspective:scrPerspective, settings:scrSettings, invite:scrInvite, contrib:scrContrib, cstory:scrCstory, contribute:scrContribute, gift:scrGift, progress:scrProgress };
   phone().innerHTML = '<div class="screen">' + (map[cur] || scrLaunch)() + '</div>';
   let whatText = WHAT[cur] || "";
   if (cur === "story" && !HAS.perspectives)

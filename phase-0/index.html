@@ -166,9 +166,6 @@
     <p class="lede" id="lede">One app, three people in it: the storyteller, the family who add a perspective, and the buyer when it is a gift. Everything here is clickable.</p>
     <div class="phases" id="phaseNav"></div>
     <div class="role">
-      <button id="rDavid" class="on" onclick="setRole('david')">Storyteller</button>
-      <button id="rSusan" onclick="setRole('susan')">Family</button>
-      <button id="rBuyer" onclick="setRole('buyer')">Buyer</button>
     </div>
     <div class="screens" id="list"></div>
     <div class="what" id="what"></div>
@@ -263,46 +260,13 @@ const SCREENS = {
     { id:"style",    label:"Design system",  sub:"tokens, type, states", ph:[0] },
     { id:"launch",   label:"Launch",         sub:"the first second", ph:[0] },
   ],
-  david: [
-    { id:"launch",   label:"Launch",          sub:"the first second", ph:[0] },
-    { id:"talk",     label:"Call",            sub:"she speaks first", ph:[1] },
-    { id:"session",  label:"In a session",    sub:"photo cue", ph:[1] },
-    { id:"notebook", label:"Notebook",        sub:"your own map", ph:[1] },
-    { id:"aspect",   label:"An aspect",       sub:"pick, then plan", ph:[1] },
-    { id:"archive",  label:"Archive",         sub:"everything you can see", ph:[1] },
-    { id:"story",    label:"A story",         sub:"words, photos, people", ph:[1] },
-    { id:"perspective", label:"A perspective", sub:"someone else's", ph:[2] },
-    { id:"settings", label:"Settings",        sub:"core first", ph:[1] }
-  ],
-  susan: [
-    { id:"invite",    label:"The invitation",  sub:"install, or a link", ph:[2] },
-    { id:"contrib",   label:"Stories about you", sub:"where you appear", ph:[2] },
-    { id:"cstory",    label:"One memory",      sub:"his words", ph:[2] },
-    { id:"contribute",label:"Contribute",      sub:"by voice", ph:[2] }
-  ],
-  buyer: [
-    { id:"gift",     label:"Give it",        sub:"before she starts", ph:[3] },
-    { id:"progress", label:"Progress",       sub:"counts, not content", ph:[3] }
-  ]
+
 };
 
 const WHAT = {
   style: "<b>Phase 0, in full.</b><p>Colour, type, buttons, the state control, tags, motion and the accessibility floor. Nothing on this page is a feature. The screens come in Phase 1, and no screen from a later phase appears in this build.</p>",
   launch: "<b>The first second.</b><p>A mark that breathes, the name, and a rule drawn underneath. No logo animation that delays anything: it holds for about a second while the voice warms, then the call opens.</p>",
-  talk: "<b>Her, not a blank page.</b><p>Her name, a waveform that only moves when she speaks, the caption of what she is saying, and the last story as a chip you can tap. The screen is warm because a person is talking to you.</p>",
-  session: "<b>One control, and an honest exit.</b><p>The button says who has the floor. Done asks once, so a story mid-sentence is not lost to a mistap.</p>",
-  notebook: "<b>Yours, and only yours.</b><p>Notebook is the diary side: what you have covered, how deep you have gone, what is untouched, and the photos waiting for a story. Each aspect opens so you can plan a session around it.</p>",
-  aspect: "<b>Pick, then plan.</b><p>Tapping an aspect shows what it already holds and what she would ask inside it. Planning it means the next call starts there, instead of her choosing.</p>",
-  archive: "<b>Everything you are allowed to see.</b><p>Your stories and the ones family have shared with you, in one searchable place, with filters for person, year, photos and perspectives.</p>",
-  story: "<b>His record, with room to correct it.</b><p>He can add to or correct his own story, which opens a conversation with it loaded. Other people's accounts are perspectives, and the voice label changes with who is looking.</p>",
-  perspective: "<b>Their record, not yours to edit.</b><p>You may hide it from your view. You may not alter or delete it: the account belongs to the person who gave it, and the event of it is kept even when it leaves your screen.</p>",
-  settings: "<b>Deferred.</b><p>Core first. Only what the core needs lives here for now.</p>",
-  invite: "<b>Install first.</b><p>The invitation opens the store if the app is missing, and the invitation itself is a page on the web so the link always works. The contribution page in a browser is the fallback, not the front door.</p>",
-  contrib: "<b>Where she is named.</b><p>Four memories, each with the sentence that names her, plus the stories she has started herself.</p>",
-  cstory: "<b>His words, her ear.</b><p>Read and listen. One action: contribute, by voice.</p>",
-  contribute: "<b>Voice first.</b><p>She hears the story, then a prompt, then speaks. Typing is the fallback.</p>",
-  gift: "<b>The gift is a door, not a purchase.</b><p>The buyer sets up nothing about the life. They write a note, name the person, and pay. The first screen the storyteller sees is that note, not a product tour.</p>",
-  progress: "<b>Counts, not content.</b><p>The buyer sees that stories are being made, never what they say, unless the storyteller opens them. This is the opposite of the industry default and it is the reason a parent would trust it.</p>"
+
 };
 
 /* ------------------------------------------------------------------ state */
@@ -361,14 +325,15 @@ function paintRole() {
   });
 }
 
+// Tabs are derived from the screen table rather than hard-coded, so a phase build
+// cannot carry the name of a screen it does not contain.
+const TAB_IDS = { david:["talk","notebook","archive","settings"], susan:["contrib","cstory"],
+                  buyer:["gift","progress"], design:[] };
 function tabs(active) {
-  const mine = role === "david"
-    ? [["talk","Call"],["notebook","Notebook"],["archive","Archive"],["settings","Settings"]]
-    : role === "susan"
-    ? [["contrib","About you"],["cstory","One memory"]]
-    : [["gift","Give it"],["progress","Progress"]];
-  return `<div class="tabbar">${mine.map(([id,label]) =>
-    `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${label}</button>`).join("")}</div>`;
+  const byId = Object.fromEntries(SCREENS[role].map(s => [s.id, s.label]));
+  const mine = (TAB_IDS[role] || []).filter(id => byId[id]);
+  return `<div class="tabbar">${mine.map(id =>
+    `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${byId[id]}</button>`).join("")}</div>`;
 }
 
 /* ------------------------------------------------------------------ screens */
@@ -422,288 +387,6 @@ function scrLaunch() {
   </div>`;
 }
 
-function scrTalk() {
-  return `<div class="scroll" style="display:flex;flex-direction:column">
-    <div class="appbar"><span class="eyebrow">Storykeeper</span><span class="pill">Mina · neutral voice</span></div>
-    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 2px 12px">
-      <div class="row" style="justify-content:flex-start;gap:14px;margin-bottom:18px">
-        <div class="av" style="width:38px;height:38px">M</div>
-        <div>${wave()}</div>
-      </div>
-      <p class="eyebrow" style="margin-bottom:10px">she is speaking</p>
-      <p class="quote big" style="font-size:18px;line-height:1.62">Hello Dave, it is Mina. When we stopped, you were saying, I could hear the tram all night. I did not mind it.</p>
-      <p class="quote big" style="font-size:18px;line-height:1.62;margin-top:12px">Shall we carry on from there, or would you rather tell me something new today?</p>
-      <div class="card tap" style="margin-top:24px;padding:11px 13px" onclick="go('story','tram')">
-        <div class="row"><span class="meta">last story · 1958 · the tram at night</span><span class="meta">›</span></div>
-      </div>
-    </div>
-  </div>
-  <div class="talkbar"><button class="statebtn ${listening?'listen':''}" onclick="toggle()">
-    <span class="led"></span><span class="txt">${listening?'Listening — your turn':'Mina speaking'}</span>
-    <span class="hint">${listening?'tap to interrupt':'tap to pause her'}</span></button></div>`;
-}
-
-function scrSession() {
-  return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="openSheet('endcall')">Done</button><span class="eyebrow">in a session</span><span class="meta">12 min</span></div>
-    <div class="ph big">photograph · the tram at the terminus, 1958</div>
-    <p class="note" style="text-align:center;margin:9px 0 0">dated on the back of the print</p>
-    <p class="quote big" style="text-align:center;margin:20px 8px 0;font-size:17.5px">Who is this, and where was it taken?</p>
-    <div style="margin-top:24px">
-      <p class="eyebrow">what she has so far</p>
-      <p class="caption" style="margin-top:8px">“The day I was born, it was raining so hard the tram stopped at the corner. My mother always said that was the first thing I heard.”</p>
-    </div>
-  </div>
-  <div class="talkbar"><button class="statebtn ${listening?'listen':''}" onclick="toggle()">
-    <span class="led"></span><span class="txt">${listening?'Listening':'Mina speaking'}</span>
-    <span class="hint">${listening?'2 of 3 passages kept':'tap to interrupt'}</span></button></div>`;
-}
-
-function scrNotebook() {
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">notebook</span><span class="meta">7 stories · 61 min</span></div>
-    <h2 class="title">Your life, as far as it is written</h2>
-    <p class="sub">Yours alone. What is covered, how deep it goes, and what to plan for next time. She reads this too, so a plan here is a plan for the call.</p>
-    <div class="card" style="border-left:3px solid var(--brass)">
-      <div class="row"><span class="eyebrow" style="color:var(--brass)">plan the next session</span><span class="pill">one tap</span></div>
-      <p class="note" style="margin-top:6px">Pick a thread and the next call opens there. Otherwise she chooses from what is thin.</p>
-      <button class="btn small" style="margin-top:10px" onclick="openSheet('plan')">Choose a thread</button>
-    </div>
-    <h3 class="sect">breadth · 7 of 12 aspects</h3>
-    ${D.aspects.map(a => `<div class="card tap" style="padding:11px 14px" onclick="goA('aspect','${a.id}')">
-      <div class="row"><span class="name" style="font-size:13px">${a.name}</span>
-      <span class="meta">${a.stories?`${a.stories} ${a.stories===1?'story':'stories'}`:'nothing yet'} ›</span></div>
-      <div class="bar"><i style="width:${a.depth*33}%;background:${a.depth===0?'#E4DAC7':a.depth===1?'#C0A15E':'var(--deep)'}"></i></div>
-    </div>`).join("")}
-    <h3 class="sect">your stories</h3>
-    ${D.stories.filter(s=>s.mine).map(s => `<div class="card tap" style="padding:11px 14px" onclick="go('story','${s.id}')">
-      <div class="row"><span class="name" style="font-size:13.5px">${s.title}</span><span class="meta">${s.year} ›</span></div>
-      <p class="note" style="margin-top:4px">${s.time}${s.calls>1?` · ${s.calls} nights`:""}${s.photos?` · ${s.photos} photos`:""}</p></div>`).join("")}
-    <h3 class="sect">photos waiting for a story</h3>
-    <div class="photos">${D.shelf.map(p => `<div class="ph" style="width:82px;height:82px">${p.label}</div>`).join("")}
-      <div class="ph add" style="width:82px;height:82px" onclick="openSheet('photo')">+</div></div>
-    <p class="note" style="margin-top:10px">Kept until it has a story. She can open the next call with one, which is easier than starting from nothing.</p>
-  </div>${tabs('notebook')}`;
-}
-
-function scrAspect() {
-  const a = D.aspects.find(x => x.id === aspect) || D.aspects[0];
-  const rel = D.stories.filter(s => s.theme === a.name || (a.name === "the shop" && s.id === "fire"));
-  return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('notebook')">‹ Notebook</button><span class="eyebrow">aspect</span></div>
-    <h2 class="title">${a.name}</h2>
-    <p class="sub">${a.stories ? a.stories + " stories, depth " + a.depth + " of 3." : "Nothing recorded yet."}</p>
-    <div class="card" style="border-left:3px solid var(--brass)">
-      <span class="eyebrow" style="color:var(--brass)">she would ask inside this</span>
-      <p class="quote" style="margin-top:8px;font-size:15px">${a.q}</p>
-      <button class="btn small" style="margin-top:10px" onclick="toast('Next call will open here')">Plan this next</button>
-    </div>
-    <h3 class="sect">already told</h3>
-    ${rel.length ? rel.map(s => `<div class="card tap" style="padding:12px 14px" onclick="go('story','${s.id}')">
-      <div class="row"><span class="name" style="font-size:13.5px">${s.title}</span><span class="meta">${s.year} ›</span></div></div>`).join("")
-      : `<p class="note">Nothing yet. This is where a session would start.</p>`}
-  </div>${tabs('notebook')}`;
-}
-
-function scrArchive() {
-  const years = [...new Set(D.stories.map(s => s.year))].sort((a,b) => a-b);
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">archive</span><span class="meta">7 stories · 2 shared with you</span></div>
-    <h2 class="title">Everything you can see</h2>
-    <p class="sub">Your own stories and the ones family have shared. One search across all of it.</p>
-    <div class="search" onclick="toast('Search words, people, places, or ask a question')">Search stories, people, places</div>
-    <div class="chips"><button class="on">all</button><button onclick="toast('Filtered: mine')">mine</button>
-      ${HAS.sharedFilter ? `<button onclick="toast('Filtered: shared with me')">shared with me</button>` : ""}
-      <button onclick="toast('Filtered: photos')">photos</button><button onclick="toast('Filtered: perspectives')">perspectives</button>
-      <button onclick="toast('Filtered: year')">by year</button></div>
-    <div class="tl">
-    ${years.map(y => `<div class="tl-year">${y}</div>${D.stories.filter(s => s.year === y).map(s => `
-      <div class="card tap" onclick="go('story','${s.id}')">
-        <div class="row"><span class="name">${s.title}</span><span class="meta">${s.time}</span></div>
-        <p class="quote" style="font-size:13.5px">${s.said.length>104?s.said.slice(0,104)+"…":s.said}</p>
-        <div style="margin-top:9px">${s.mine?"":`<span class="tag slate">${s.by}'s story</span>`}${s.photos?`<span class="tag deep">${s.photos} photos</span>`:""}${s.perspectives?`<span class="tag brass">${s.perspectives} perspectives</span>`:""}${s.calls>1?`<span class="tag">${s.calls} nights</span>`:""}</div>
-      </div>`).join("")}`).join("")}
-    </div>
-  </div>${tabs('archive')}`;
-}
-
-function scrStory() {
-  const s = D.stories.find(x => x.id === story) || D.stories[0];
-  const p = D.perspectives[s.id] || [];
-  return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('archive')">‹ Archive</button><span class="eyebrow">${s.year} · ${s.place}</span></div>
-    <h2 class="title" style="font-size:21px">${s.title}</h2>
-    <div class="meta-strip">
-      <div><b>when</b>${s.year}, from ${s.mine?"his":"her"} words</div>
-      <div><b>where</b>${s.place}</div>
-      <div><b>named</b>${s.people.length} people</div>
-      <div><b>recorded</b>${s.calls>1?`across ${s.calls} nights`:s.time}</div>
-    </div>
-    <p class="asked">“${s.asked}”</p>
-    <p class="quote big" style="margin-top:8px">${s.said}</p>
-    <div class="photos">${Array.from({length:s.photos}).map(() => `<div class="ph">photo</div>`).join("")}
-      <div class="ph add" onclick="openSheet('photo')">+</div></div>
-    <div class="row" style="margin-top:12px">
-      <div class="who"><div class="av" style="background:#EFE8DA;color:#6F675C">▶</div><span class="meta">hear it · 0:26</span></div>
-      <span class="tag deep">${s.mine ? "my voice" : s.by + "'s voice"}</span>
-    </div>
-    ${s.mine ? `<button class="btn ghost" style="margin-top:14px" onclick="openSheet('correct')">Correct or add to this</button>` : ""}
-    ${s.calls>1 ? `<h3 class="sect">nights this was recorded</h3>
-      <div class="card" style="padding:12px 14px"><p class="note" style="margin:0">2 Nov · 4:12 – 6:03 · the fire itself<br>9 Nov · 2:40 · what was in the back room<br>6 Nov · 1:10 · who came the next morning</p></div>` : ""}
-    ${HAS.perspectives ? `
-    <h3 class="sect">perspectives</h3>
-    ${p.length ? p.map(x => `<div class="card tap" style="border-left:3px solid ${x.kind==='correction'?'var(--oxblood)':'var(--slate)'}" onclick="goP('${x.id}')">
-        <div class="row"><div class="who"><div class="av v">${x.who[0]}</div><div class="name">${x.who}, ${x.rel}</div></div>
-        <span class="tag ${x.kind==='correction'?'ox':'slate'}">${x.kind==='correction'?'correction':'account'}</span></div>
-        <p class="quote" style="font-size:14px;margin-top:8px">${x.text.length>110?x.text.slice(0,110)+"…":x.text}</p>
-        <p class="note" style="margin-top:6px">${x.when} · open ›</p></div>`).join("") : `<p class="note">Nobody else has added anything yet.</p>`}
-    <button class="btn ghost" onclick="openSheet('invite')">Invite collaborators</button>
-    <p class="note" style="margin-top:8px">Anyone who was there, if he says so. Not only family.</p>` : ""}
-  </div>${tabs('archive')}`;
-}
-
-function scrPerspective() {
-  const s = D.stories.find(x => x.id === story) || D.stories[0];
-  const all = D.perspectives[s.id] || [];
-  const x = all.find(y => y.id === perspective) || all[0];
-  if (!x) return `<div class="scroll"><p class="note">None yet.</p></div>`;
-  return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('story')">‹ ${s.title}</button><span class="eyebrow">perspective</span></div>
-    <div class="who" style="margin:6px 0 12px"><div class="av v" style="width:38px;height:38px">${x.who[0]}</div>
-      <div><div class="name">${x.who}</div><div class="meta">${x.rel} · added ${x.when}</div></div></div>
-    <span class="tag ${x.kind==='correction'?'ox':'slate'}">${x.kind==='correction'?'correction to his account':'their own account'}</span>
-    <p class="quote big" style="margin-top:14px">${x.text}</p>
-    <h3 class="sect">how this sits with his</h3>
-    <p class="note">${x.kind==='correction'
-      ? "Both stand. His story is not edited, and this is not treated as the true version. A correction names the disagreement and leaves it there."
-      : "Beside his, never inside it. Never quoted as him, and never spoken in his voice."}</p>
-    <h3 class="sect">what you may do</h3>
-    <div class="card" style="padding:12px 14px"><p class="note" style="margin:0">Hide it from your view. That is all. The account belongs to ${x.who}, and hiding it does not delete it, change it, or stop it being theirs.</p></div>
-    <button class="btn ghost" onclick="toast('Hidden from your view. ${x.who} still has it.')">Hide from my view</button>
-    <p class="note" style="margin-top:8px">${x.who} can remove it themselves, and can see that you hid it.</p>
-  </div>${tabs('archive')}`;
-}
-
-function scrSettings() {
-  const s = D.settings;
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">settings</span><span class="meta">${D.name}</span></div>
-    <h2 class="title">How she asks</h2>
-    <p class="sub">Only what the core needs for now. This screen will change once the rest is decided.</p>
-    <h3 class="sect">how much she draws you out</h3>
-    <div class="seg"><button class="${s.style==='passive'?'on':''}" onclick="setS('style','passive')">Let me talk</button>
-      <button class="${s.style==='prober'?'on':''}" onclick="setS('style','prober')">Draw me out</button>
-      <button class="${s.style==='deep'?'on':''}" onclick="setS('style','deep')">Dig deeper</button></div>
-    <h3 class="sect">voice and speed</h3>
-    <div class="seg"><button class="${s.speed==='slow'?'on':''}" onclick="setS('speed','slow')">Slow</button>
-      <button class="${s.speed==='normal'?'on':''}" onclick="setS('speed','normal')">Normal</button>
-      <button class="${s.speed==='faster'?'on':''}" onclick="setS('speed','faster')">Faster</button></div>
-    <div class="card" style="padding:12px 14px"><div class="row"><span class="meta" style="color:#6F675C">Before she answers, she waits ${s.patience} seconds</span><span class="pill">learned</span></div></div>
-    <h3 class="sect">what she calls you · what is off limits</h3>
-    <div class="card" style="padding:12px 14px"><div class="row"><span class="name" style="font-size:13.5px">${s.address}</span><span class="pill">said by you</span></div></div>
-    <div class="card" style="padding:12px 14px"><div class="row"><span class="meta" style="color:#6F675C">${s.avoid}</span><span class="pill">said by you</span></div></div>
-  </div>${tabs('settings')}`;
-}
-
-/* ---- family ---- */
-function scrInvite() {
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">storykeeper</span><span class="pill">invitation</span></div>
-    <h2 class="title" style="margin-top:20px">Dave has asked you to add a perspective</h2>
-    <p class="sub" style="margin-top:10px">He is recording his life. The stories where you appear are yours too, and you can add what you remember beside them.</p>
-    <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You will be shown</span><span class="meta">4 memories</span></div></div>
-    <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You can add</span><span class="meta">your own perspective</span></div></div>
-    <div class="card"><div class="row"><span class="name" style="font-size:13.5px">You cannot</span><span class="meta">change his words</span></div></div>
-    <button class="btn" onclick="toast('Opens the store, then back to this invitation')">Open Storykeeper</button>
-    <button class="btn ghost" onclick="go('contribute')">Answer in the browser instead</button>
-    <p class="note" style="text-align:center;margin-top:10px">The app keeps your stories and lets you start your own. The browser does not.</p>
-  </div>`;
-}
-
-function scrContrib() {
-  const mine = D.stories.filter(s => !s.mine);
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">stories about you</span><span class="meta">${mine.length} memories</span></div>
-    <h2 class="title">Dave's life</h2>
-    <p class="sub">You were there for these. Contribute by voice, and it sits beside his words with your name on it.</p>
-    ${mine.map(s => `<div class="card tap" onclick="go('cstory','${s.id}')">
-      <div class="row"><span class="name">${s.title}</span><span class="meta">${s.year}</span></div>
-      <p class="quote" style="font-size:13.5px">${s.said.length>96?s.said.slice(0,96)+"…":s.said}</p>
-      <div style="margin-top:9px"><span class="tag slate">your perspective</span></div></div>`).join("")}
-    <div class="card" style="margin-top:6px">
-      <div class="row"><span class="name" style="font-size:13.5px">Your own stories</span><span class="tag brass">new</span></div>
-      <p class="note" style="margin-top:6px">The same thing he is doing, for your life. Same app, same Mina.</p>
-      <button class="btn ghost small" onclick="toast('Setup begins with her introduction')">Start mine</button>
-    </div>
-  </div>${tabs('contrib')}`;
-}
-
-function scrCstory() {
-  const s = D.stories.find(x => x.id === story) || D.stories[0];
-  return `<div class="scroll">
-    <div class="appbar"><button class="back" onclick="go('contrib')">‹ About you</button><span class="eyebrow">${s.year}</span></div>
-    <h2 class="title" style="font-size:21px">${s.title}</h2>
-    <p class="quote big">${s.said}</p>
-    <p class="note" style="margin-top:6px">his words · you may read and hear these, not change them</p>
-    <div class="photos" style="margin-top:12px">${Array.from({length:s.photos||1}).map(() => `<div class="ph">photo</div>`).join("")}</div>
-    <h3 class="sect">your perspective</h3>
-    ${(D.perspectives[s.id]||[]).filter(p => p.who==="Susan").map(x => `<div class="card" style="border-left:3px solid var(--slate)">
-      <p class="quote" style="font-size:14px">${x.text}</p><p class="note" style="margin-top:8px">added ${x.when}</p></div>`).join("") || `<p class="note">Nothing yet.</p>`}
-    <button class="btn" onclick="go('contribute')">Contribute</button>
-  </div>${tabs('cstory')}`;
-}
-
-function scrContribute() {
-  const s = D.stories.find(x => x.id === story) || D.stories[0];
-  return `<div class="scroll" style="display:flex;flex-direction:column">
-    <div class="appbar"><button class="back" onclick="go('cstory')">‹ Back</button><span class="eyebrow">contribute</span><span class="pill">as Susan</span></div>
-    <div class="ph" style="width:100%;height:126px;margin-bottom:10px">photograph · ${s.title}</div>
-    <div class="bubble">“${s.said}”</div>
-    <p class="note" style="margin:2px 0 10px">his words · she will play them to you</p>
-    <div class="bubble her">What do you remember about that night? Anything at all, even a smell.</div>
-    <div style="flex:1"></div>
-    <div style="padding:10px 0 4px">
-      <button class="btn" style="padding:18px;font-size:16px" onclick="toast('Recording… tap again when you are done')">● Hold to speak</button>
-      <p class="note" style="text-align:center;margin-top:8px">Her question is asked out loud too, so you can answer without reading.</p>
-      <p class="note" style="text-align:center;margin-top:14px;text-decoration:underline" onclick="toast('Typing is the fallback')">rather type it</p>
-    </div>
-  </div>`;
-}
-
-/* ---- buyer ---- */
-function scrGift() {
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">storykeeper gift</span><span class="pill">£89 a year</span></div>
-    <h2 class="title" style="margin-top:14px">Give a year of her asking</h2>
-    <p class="sub">One call a week for a year, in his own words and his own voice. At the end, a book, and the recordings behind it.</p>
-    <h3 class="sect">who is it for</h3>
-    <div class="card" style="padding:12px 14px"><span class="meta">Their name and phone number</span></div>
-    <h3 class="sect">a note from you</h3>
-    <div class="card" style="min-height:92px"><p style="font-size:13.5px;color:#BFB4A1;margin:0">He will hear this before anything else. Not a product tour.</p></div>
-    <div class="card" style="padding:12px 14px">
-      <div class="row"><span class="name" style="font-size:13.5px">You will see</span><span class="meta">that stories are being made</span></div>
-      <p class="note" style="margin-top:6px">Not what they say. He can open them to you, and nothing is opened by default.</p>
-    </div>
-    <button class="btn" onclick="toast('Invitation sent. Nothing more to set up.')">Send the gift</button>
-    <p class="note" style="text-align:center;margin-top:10px">He can decline, and you are refunded.</p>
-  </div>${tabs('gift')}`;
-}
-
-function scrProgress() {
-  return `<div class="scroll">
-    <div class="appbar"><span class="eyebrow">my gift</span><span class="meta">Dave</span></div>
-    <h2 class="title">Dave is recording</h2>
-    <p class="sub">This is all you see unless he decides otherwise. It is not a dashboard about a person.</p>
-    <div class="card"><div class="row"><span class="name">Stories so far</span><span class="meta">7</span></div>
-      <div class="bar"><i style="width:42%"></i></div><p class="note" style="margin-top:8px">42% of a year of calls</p></div>
-    <div class="card"><div class="row"><span class="name">Calls</span><span class="meta">3</span></div></div>
-    <div class="card"><div class="row"><span class="name">Shared with you</span><span class="meta">1 story</span></div>
-      <p class="note" style="margin-top:6px">He opened the tram story to you on 9 November.</p></div>
-    <div class="card" style="padding:12px 14px"><p class="note" style="margin:0">If he stops, you are told, and you are not told why.</p></div>
-  </div>${tabs('progress')}`;
-}
-
-/* ------------------------------------------------------------------ sheets */
 function openSheet(kind) {
   const s = document.getElementById("sheet"), inner = document.getElementById("sheetInner");
   if (kind === "photo") inner.innerHTML = `<div class="grab"></div>
@@ -751,10 +434,7 @@ function setS(k, v) { D.settings[k] = v; render(); }
 
 /* ------------------------------------------------------------------ render */
 function render() {
-  const map = { style:scrStyle, launch:scrLaunch, talk:scrTalk, session:scrSession, notebook:scrNotebook, aspect:scrAspect,
-    archive:scrArchive, story:scrStory, perspective:scrPerspective, settings:scrSettings,
-    invite:scrInvite, contrib:scrContrib, cstory:scrCstory, contribute:scrContribute,
-    gift:scrGift, progress:scrProgress };
+  const map = { style:scrStyle, launch:scrLaunch };
   phone().innerHTML = '<div class="screen">' + (map[cur] || scrLaunch)() + '</div>';
   let whatText = WHAT[cur] || "";
   if (cur === "story" && !HAS.perspectives)
