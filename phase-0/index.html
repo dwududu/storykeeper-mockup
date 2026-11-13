@@ -294,12 +294,15 @@ function paintPhaseNav() {
   const items = [
     ["All screens", base + "storykeeper-flow.html", null],
     ["Phase 0", base + "phase-0/", 0],
+    ["0.5", base + "phase-0-5/", "0.5"],
     ["Phase 1", base + "phase-1/", 1],
     ["Phase 2", base + "phase-2/", 2],
     ["Phase 3", base + "phase-3/", 3],
   ];
-  nav.innerHTML = items.map(([label, href, n]) =>
-    `<a href="${href}" class="${n === PHASE ? "on" : ""}">${label}</a>`).join("");
+  nav.innerHTML = items.map(([label, href, n]) => {
+    const on = (n === "0.5") ? /phase-0-5/.test(location.pathname) : n === PHASE;
+    return `<a href="${href}" class="${on ? "on" : ""}">${label}</a>`;
+  }).join("");
 }
 
 function paintRole() {

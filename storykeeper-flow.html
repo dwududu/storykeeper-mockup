@@ -329,12 +329,15 @@ function paintPhaseNav() {
   const items = [
     ["All screens", base + "storykeeper-flow.html", null],
     ["Phase 0", base + "phase-0/", 0],
+    ["0.5", base + "phase-0-5/", "0.5"],
     ["Phase 1", base + "phase-1/", 1],
     ["Phase 2", base + "phase-2/", 2],
     ["Phase 3", base + "phase-3/", 3],
   ];
-  nav.innerHTML = items.map(([label, href, n]) =>
-    `<a href="${href}" class="${n === PHASE ? "on" : ""}">${label}</a>`).join("");
+  nav.innerHTML = items.map(([label, href, n]) => {
+    const on = (n === "0.5") ? /phase-0-5/.test(location.pathname) : n === PHASE;
+    return `<a href="${href}" class="${on ? "on" : ""}">${label}</a>`;
+  }).join("");
 }
 
 function paintRole() {
@@ -360,14 +363,15 @@ function paintRole() {
   });
 }
 
+// Tabs are derived from the screen table rather than hard-coded, so a phase build
+// cannot carry the name of a screen it does not contain.
+const TAB_IDS = { david:["talk","notebook","archive","settings"], susan:["contrib","cstory"],
+                  buyer:["gift","progress"], design:[] };
 function tabs(active) {
-  const mine = role === "david"
-    ? [["talk","Call"],["notebook","Notebook"],["archive","Archive"],["settings","Settings"]]
-    : role === "susan"
-    ? [["contrib","About you"],["cstory","One memory"]]
-    : [["gift","Give it"],["progress","Progress"]];
-  return `<div class="tabbar">${mine.map(([id,label]) =>
-    `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${label}</button>`).join("")}</div>`;
+  const byId = Object.fromEntries(SCREENS[role].map(s => [s.id, s.label]));
+  const mine = (TAB_IDS[role] || []).filter(id => byId[id]);
+  return `<div class="tabbar">${mine.map(id =>
+    `<button class="${id===active?'on':''}" onclick="go('${id}')"><span class="dot"></span>${byId[id]}</button>`).join("")}</div>`;
 }
 
 /* ------------------------------------------------------------------ screens */
