@@ -18,7 +18,12 @@
   .notes{flex:1 1 auto;min-width:300px;max-width:450px;position:sticky;top:34px}
   .notes h1{font-size:13px;letter-spacing:.15em;text-transform:uppercase;color:#8A8377;margin:0 0 6px;font-weight:800}
   .notes .lede{font-size:14.5px;line-height:1.55;color:#3B352E;margin:0 0 16px}
-  .role{display:flex;gap:6px;margin:0 0 18px}
+  .phases{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+  .phases a{text-decoration:none;border:1px solid var(--line);background:var(--card);border-radius:999px;
+    padding:6px 10px;font-size:11px;font-weight:800;color:#4A443D;letter-spacing:.02em}
+  .phases a:hover{border-color:#C9B79A}
+  .phases a.on{background:var(--brass);border-color:var(--brass);color:#fff}
+  .role{display:flex;gap:6px;margin:0 0 14px}
   .role button{flex:1;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 6px;
     font:inherit;font-size:11.5px;font-weight:700;color:#4A443D;cursor:pointer}
   .role button.on{background:var(--deep);color:#fff;border-color:var(--deep)}
@@ -159,6 +164,7 @@
   <aside class="notes">
     <h1 id="phaseTitle">Storykeeper · spec v4</h1>
     <p class="lede">One app, three people in it: the storyteller, the family who add a perspective, and the buyer when it is a gift. Everything here is clickable.</p>
+    <div class="phases" id="phaseNav"></div>
     <div class="role">
       <button id="rDavid" class="on" onclick="setRole('david')">Storyteller</button>
       <button id="rSusan" onclick="setRole('susan')">Family</button>
@@ -291,11 +297,32 @@ function go(id, arg) { if (arg) story = arg; cur = id; render(); }
 function goA(id, aid) { aspect = aid; go(id); }
 function setRole(r, nav = true) { role = r; paintRole(); if (nav) go(r === "david" ? "launch" : r === "susan" ? "invite" : "gift"); }
 
+function paintPhaseNav() {
+  const nav = document.getElementById("phaseNav");
+  if (!nav) return;
+  // The same file is served from the root and from inside phase-N/, so the prefix
+  // is derived rather than hard-coded.
+  const inside = /\/phase-\d+\//.test(location.pathname);
+  const base = inside ? "../" : "./";
+  const items = [
+    ["All screens", base + "storykeeper-flow.html", null],
+    ["Phase 0", base + "phase-0/", 0],
+    ["Phase 1", base + "phase-1/", 1],
+    ["Phase 2", base + "phase-2/", 2],
+    ["Phase 3", base + "phase-3/", 3],
+  ];
+  nav.innerHTML = items.map(([label, href, n]) =>
+    `<a href="${href}" class="${n === PHASE ? "on" : ""}">${label}</a>`).join("");
+}
+
 function paintRole() {
+  paintPhaseNav();
   ["david","susan","buyer"].forEach(r => document.getElementById("r"+r[0].toUpperCase()+r.slice(1)).classList.toggle("on", role === r));
   const list = document.getElementById("list"); list.innerHTML = "";
-  SCREENS[role].forEach(s => {
-    if (PHASE !== null && !(s.ph || []).includes(PHASE)) return;
+  // Filtered to the phase, but never hide the screen you are actually on: a link
+  // from inside a phase (a story opens a perspective) must still show its place.
+  const shown = SCREENS[role].filter(s => PHASE === null || (s.ph || []).includes(PHASE) || s.id === cur);
+  shown.forEach(s => {
     const b = el(`<button onclick="go('${s.id}')"><span>${s.label}</span><small>${s.sub}</small></button>`);
     if (s.id === cur) b.classList.add("on");
     list.appendChild(b);
